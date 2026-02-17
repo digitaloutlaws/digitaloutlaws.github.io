@@ -3,302 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Digital Outlaws • Presaves</title>
+  <title>The Digital Outlaws • Spotify Presaves</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English&family=Orbitron:wght@500;700&family=Cinzel:wght@400;700&family=Almendra+SC&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --wood-dark: #2c1f14;
-      --wood-med: #3c2f2f;
-      --leather: #8b5a2b;
-      --gold: #d4a017;
-      --paper: #f5e8c7;
-      --accent-red: #b22222;
-      --shadow: rgba(0,0,0,0.8);
-    }
-    body {
-      font-family: 'IM Fell English', serif;
-      background: var(--wood-dark);
-      color: var(--paper);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-    /* Blurred, slow-moving artist collage background */
-    .bg-collage {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      opacity: 0.18;
-      filter: blur(14px);
-      background: var(--wood-dark);
-      overflow: hidden;
-    }
-    .bg-collage img {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      object-fit: cover;
-      border-radius: 50%;
-      animation: drift 180s infinite linear;
-      will-change: transform;
-    }
-    @keyframes drift {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(150vw, 150vh) rotate(360deg); }
-    }
-    header {
-      text-align: center;
-      padding: 60px 20px 30px;
-      background: linear-gradient(to bottom, rgba(44,31,20,0.95), rgba(60,47,47,0.8));
-      border-bottom: 6px double var(--gold);
-      position: relative;
-      z-index: 1;
-    }
-    h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 4.8rem;
-      color: var(--gold);
-      margin: 0;
-      text-shadow: 4px 4px 12px var(--shadow);
-      letter-spacing: 6px;
-    }
-    .tagline {
-      font-family: 'Cinzel', serif;
-      font-size: 1.6rem;
-      color: var(--paper);
-      margin: 10px 0 0;
-      text-shadow: 1px 1px 4px var(--shadow);
-    }
-    #user-info {
-      text-align: center;
-      color: var(--gold);
-      font-size: 1.4rem;
-      margin: 15px 0;
-      font-weight: bold;
-    }
-    .auth-container {
-      max-width: 600px;
-      margin: 30px auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      justify-content: center;
-      position: relative;
-      z-index: 1;
-    }
-    #login, #change-password {
-      flex: 1;
-      min-width: 320px;
-      padding: 30px;
-      background: rgba(139,90,43,0.18);
-      border: 3px solid var(--leather);
-      border-radius: 16px;
-      box-shadow: 0 12px 40px var(--shadow);
-      backdrop-filter: blur(6px);
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 14px;
-      margin: 12px 0;
-      background: #2a1f1f;
-      border: 2px solid var(--leather);
-      border-radius: 8px;
-      color: var(--paper);
-      font-size: 1.1rem;
-    }
-    button {
-      padding: 14px 30px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      font-family: 'Cinzel', serif;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    button:hover { transform: scale(1.05); box-shadow: 0 8px 20px var(--shadow); }
-    #login button, #change-password button { background: var(--gold); color: #1c1200; }
-    #logout { background: var(--accent-red); color: white; }
-    #password-message { margin-top: 12px; font-size: 1rem; min-height: 1.4em; }
-    #loading {
-      text-align: center;
-      font-size: 2.5rem;
-      color: var(--gold);
-      margin: 120px 0;
-      font-family: 'Orbitron', sans-serif;
-      animation: glow 3s infinite alternate;
-    }
-    @keyframes glow { from { text-shadow: 0 0 15px var(--gold); } to { text-shadow: 0 0 40px var(--gold); } }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 40px;
-      padding: 50px 30px;
-      max-width: 1800px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-    .artist-card {
-      position: relative;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.4s ease;
-      background: rgba(60,47,47,0.7);
-      border: 4px solid var(--leather);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 12px 35px var(--shadow);
-      backdrop-filter: blur(5px);
-    }
-    .artist-card:hover {
-      transform: scale(1.12) rotate(3deg);
-      box-shadow: 0 25px 60px rgba(212,160,23,0.35);
-    }
-    .artist-card img {
-      width: 100%;
-      aspect-ratio: 1/1;
-      object-fit: cover;
-      border-bottom: 6px double var(--gold);
-    }
-    .artist-card h3 {
-      margin: 18px 0;
-      font-family: 'Almendra SC', serif;
-      font-size: 1.8rem;
-      color: var(--paper);
-      text-shadow: 2px 2px 6px var(--shadow);
-    }
-    #detail {
-      max-width: 900px;
-      margin: 50px auto;
-      padding: 40px;
-      background: rgba(60,47,47,0.9);
-      border: 6px double var(--gold);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px var(--shadow);
-      backdrop-filter: blur(8px);
-      display: none;
-      position: relative;
-      z-index: 2;
-    }
-    #detail h2 {
-      font-family: 'Orbitron', sans-serif;
-      color: var(--gold);
-      font-size: 3rem;
-      text-shadow: 3px 3px 10px var(--shadow);
-      margin-bottom: 25px;
-    }
-    #spotify-link button {
-      background: var(--gold);
-      color: #1c1200;
-      font-size: 1.6rem;
-      padding: 20px 50px;
-      border: 3px solid var(--leather);
-      margin: 30px 0;
-    }
-    #presaves {
-      background: rgba(245,232,199,0.15);
-      padding: 35px;
-      border-radius: 16px;
-      border: 2px solid var(--leather);
-      margin-top: 30px;
-      font-size: 1.3rem;
-      line-height: 1.6;
-    }
-    #presaves h3 {
-      color: var(--gold);
-      font-family: 'Orbitron', sans-serif;
-      margin-bottom: 25px;
-      font-size: 2rem;
-    }
-    #presaves li {
-      margin: 18px 0;
-      padding: 15px;
-      background: rgba(139,90,43,0.2);
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #presaves a {
-      color: var(--paper);
-      text-decoration: none;
-      flex: 1;
-    }
-    #presaves a:hover { color: var(--gold); }
-    #presaves a.clicked { opacity: 0.6; text-decoration: line-through; }
-    #presaves button {
-      background: var(--accent-red);
-      color: white;
-      padding: 10px 20px;
-      font-size: 1rem;
-      margin-left: 15px;
-    }
-    #admin {
-      margin-top: 40px;
-      padding: 35px;
-      background: rgba(139,90,43,0.25);
-      border: 3px dashed var(--gold);
-      border-radius: 16px;
-    }
-    #admin h3 { color: var(--gold); font-family: 'Orbitron', sans-serif; margin-bottom: 20px; }
-    #admin input {
-      width: 100%;
-      padding: 14px;
-      margin: 12px 0;
-      background: #2c1f1f;
-      color: var(--paper);
-      border: 2px solid var(--leather);
-      border-radius: 8px;
-      font-size: 1.1rem;
-    }
-    #admin button { background: var(--gold); color: #1c1200; padding: 16px 40px; font-size: 1.3rem; }
+    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #121212; color: #fff; }
+    h1 { text-align: center; color: #1DB954; }
+    #login, #change-password { text-align: center; margin: 20px; }
+    #user-info { text-align: center; color: #1DB954; }
+    #loading { text-align: center; font-size: 1.2em; color: #aaa; margin: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .artist-card { text-align: center; cursor: pointer; }
+    .artist-card img { width: 100%; max-width: 200px; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%; border: 4px solid #333; }
+    .artist-card h3 { margin: 10px 0; }
+    #detail { margin: 40px 0; text-align: center; display: none; }
+    #presaves { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
+    #presaves li { margin: 15px 0; }
+    #presaves a { display: block; padding: 15px; background: #1DB954; color: white; text-decoration: none; border-radius: 8px; font-size: 1.2em; }
+    #presaves a.clicked { background: #666; }
+    #admin { margin: 30px; padding: 20px; background: #222; border-radius: 8px; display: none; }
+    input, button { padding: 10px; margin: 5px; font-size: 1em; border-radius: 4px; }
+    button { background: #1DB954; color: white; border: none; cursor: pointer; }
+    #password-message { color: #ff6b6b; font-size: 0.9em; margin-top: 5px; }
+    #change-password button { background: #1DB954; width: 180px; }
+    #change-password input { width: 220px; }
   </style>
 </head>
 <body>
-  <div class="bg-collage" id="bg-collage"></div>
-
-  <header>
-    <h1>The Digital Outlaws</h1>
-    <p class="tagline">WANTED: INDEPENDENT COUNTRY & OUTLAW MUSIC PRESAVES</p>
-  </header>
-
+  <h1>The Digital Outlaws</h1>
   <div id="user-info"></div>
 
-  <div class="auth-container">
-    <div id="login">
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <button id="logout-btn" onclick="logout()" style="display:none;">Logout</button>
-    </div>
-
-    <div id="change-password" style="display:none;">
-      <h3>Change Your Password</h3>
-      <input type="password" id="new-password" placeholder="New Password" />
-      <input type="password" id="confirm-password" placeholder="Confirm New Password" />
-      <button onclick="changePassword()">Update Password</button>
-      <p id="password-message"></p>
-    </div>
+  <div id="login">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
   </div>
 
-  <div id="loading">Rounding up the outlaws...</div>
+  <!-- Change Password Form – appears only when logged in -->
+  <div id="change-password" style="display:none;">
+    <h3>Change Your Password</h3>
+    <input type="password" id="new-password" placeholder="New Password" />
+    <input type="password" id="confirm-password" placeholder="Confirm New Password" />
+    <button onclick="changePassword()">Update Password</button>
+    <p id="password-message"></p>
+  </div>
+
+  <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
 
   <div id="detail">
-    <button onclick="back()">← Back to outlaws</button>
+    <button onclick="back()">← Back to artists</button>
     <h2 id="artist-name"></h2>
-    <img id="artist-portrait" style="width:320px; height:320px; object-fit:cover; border-radius:50%; border:8px double var(--gold);" />
+    <img id="artist-portrait" style="width:200px; height:200px; object-fit:cover; border-radius:50%;" />
     <div id="spotify-link"></div>
     <h3>Presaves</h3>
     <ul id="presaves"></ul>
 
     <div id="admin">
-      <h3>Edit Your Presaves</h3>
+      <h3>Edit Presaves (your artist only)</h3>
       <input id="new-title" placeholder="Title (e.g. New Single)" />
       <input id="new-url" placeholder="Presave URL" />
       <button onclick="addPresave()">Add Presave</button>
@@ -311,65 +73,35 @@
       'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
     );
 
-    console.log('Supabase initialized');
-
     let currentArtist = null;
 
-    // Background collage of portraits
-    async function initBackground() {
-      const collage = document.getElementById('bg-collage');
-      const { data: artists } = await sb.from('artists').select('portrait_url, name');
-      if (!artists || artists.length === 0) return;
-
-      artists.forEach((artist, i) => {
-        if (!artist.portrait_url) return;
-        const img = document.createElement('img');
-        img.src = artist.portrait_url;
-        img.alt = '';
-        img.style.left = `${Math.random() * 120 - 10}%`;
-        img.style.top = `${Math.random() * 120 - 10}%`;
-        img.style.animationDelay = `${i * 10}s`;
-        img.style.animationDuration = `${100 + Math.random() * 100}s`;
-        collage.appendChild(img);
-      });
-    }
-
     async function loadArtists() {
-      const loading = document.getElementById('loading');
-      const grid = document.getElementById('artists-grid');
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('artists-grid').style.display = 'none';
 
-      loading.style.display = 'block';
-      grid.style.display = 'none';
-      loading.textContent = 'Rounding up the outlaws...';
-
-      try {
-        const { data: artists, error } = await sb.from('artists').select('*').order('name');
-        if (error) throw error;
-
-        console.log(`Loaded ${artists.length} artists`);
-
-        grid.innerHTML = artists.length === 0 
-          ? '<p style="grid-column:1/-1;text-align:center;color:var(--gold);">No outlaws wanted yet</p>'
-          : '';
-
-        artists.forEach(artist => {
-          const card = document.createElement('div');
-          card.className = 'artist-card';
-          card.innerHTML = `
-            <img src="${artist.portrait_url || 'https://via.placeholder.com/260?text=' + encodeURIComponent(artist.name)}" alt="${artist.name}">
-            <h3>${artist.name}</h3>
-          `;
-          card.addEventListener('click', () => showArtist(artist));
-          grid.appendChild(card);
-        });
-
-        loading.style.display = 'none';
-        grid.style.display = 'grid';
-        document.getElementById('detail').style.display = 'none';
-      } catch (err) {
-        console.error('Load error:', err);
-        loading.innerHTML = `<p style="color:#ff4444; font-size:1.5rem;">Error: ${err.message || 'Check console (F12)'}</p>`;
+      const { data: artists, error } = await sb.from('artists').select('*').order('name');
+      if (error) {
+        console.error('Artists fetch error:', error);
+        document.getElementById('loading').textContent = 'Error loading – check console';
+        return;
       }
+
+      const grid = document.getElementById('artists-grid');
+      grid.innerHTML = artists.length === 0 ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' : '';
+      artists.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = 'artist-card';
+        card.innerHTML = `
+          <img src="${artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name)}" alt="${artist.name}">
+          <h3>${artist.name}</h3>
+        `;
+        card.onclick = () => showArtist(artist);
+        grid.appendChild(card);
+      });
+
+      document.getElementById('loading').style.display = 'none';
+      grid.style.display = 'grid';
+      document.getElementById('detail').style.display = 'none';
     }
 
     async function showArtist(artist) {
@@ -377,47 +109,44 @@
       document.getElementById('detail').style.display = 'block';
       document.getElementById('artists-grid').style.display = 'none';
       document.getElementById('artist-name').textContent = artist.name;
-      document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/320?text=' + encodeURIComponent(artist.name);
+      document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name);
 
       document.getElementById('spotify-link').innerHTML = artist.spotify_url 
-        ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:40px 0; padding:20px 50px; font-size:1.8rem;">Listen on Spotify →</button></a>`
+        ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
         : '';
 
-      try {
-        const { data: presaves } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
-        const list = document.getElementById('presaves');
-        list.innerHTML = presaves.length === 0 ? '<li style="color:#d4a017;">No presaves yet</li>' : '';
-        presaves.forEach(p => {
-          const li = document.createElement('li');
-          const a = document.createElement('a');
-          a.href = p.url;
-          a.textContent = p.title;
-          a.target = '_blank';
-          if (localStorage.getItem(p.url) === 'clicked') a.classList.add('clicked');
-          a.onclick = () => { localStorage.setItem(p.url, 'clicked'); a.classList.add('clicked'); };
-          li.appendChild(a);
+      const { data: presaves } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
+      const list = document.getElementById('presaves');
+      list.innerHTML = presaves.length === 0 ? '<li>No presaves yet.</li>' : '';
+      presaves.forEach(p => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = p.url;
+        a.textContent = p.title;
+        a.target = '_blank';
+        if (localStorage.getItem(p.url) === 'clicked') a.classList.add('clicked');
+        a.onclick = () => {
+          localStorage.setItem(p.url, 'clicked');
+          a.classList.add('clicked');
+        };
+        li.appendChild(a);
 
-          sb.auth.getUser().then(({ data: { user } }) => {
-            if (user && user.id === artist.owner) {
-              const delBtn = document.createElement('button');
-              delBtn.textContent = 'Delete';
-              delBtn.style.background = '#b22222';
-              delBtn.onclick = async () => {
-                if (confirm('Remove this?')) {
-                  await sb.from('presaves').delete().eq('id', p.id);
-                  showArtist(artist);
-                }
-              };
-              li.appendChild(delBtn);
-            }
-          });
-
-          list.appendChild(li);
+        sb.auth.getUser().then(({ data: { user } }) => {
+          if (user && user.id === artist.owner) {
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.onclick = async () => {
+              if (confirm('Delete this presave?')) {
+                await sb.from('presaves').delete().eq('id', p.id);
+                showArtist(artist);
+              }
+            };
+            li.appendChild(delBtn);
+          }
         });
-      } catch (err) {
-        console.error('Presaves error:', err);
-        document.getElementById('presaves').innerHTML = '<li style="color:#ff4444;">Error loading presaves</li>';
-      }
+
+        list.appendChild(li);
+      });
 
       const admin = document.getElementById('admin');
       const { data: { user } } = await sb.auth.getUser();
@@ -430,7 +159,9 @@
       if (!title || !url) return alert('Fill both fields');
 
       const { data: { user } } = await sb.auth.getUser();
-      if (!user || user.id !== currentArtist.owner) return alert("Only the owner can add.");
+      if (!user || user.id !== currentArtist.owner) {
+        return alert("You must be the owner to add presaves.");
+      }
 
       const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
       if (error) alert('Error: ' + error.message);
@@ -461,34 +192,43 @@
 
     async function updateUserInfo() {
       const { data: { user } } = await sb.auth.getUser();
-      document.getElementById('user-info').textContent = user ? `Wanted: ${user.email} (edit your bounties)` : '';
+      document.getElementById('user-info').textContent = user ? 'Logged in as ' + user.email + ' (edit your presaves)' : '';
       document.getElementById('change-password').style.display = user ? 'block' : 'none';
-      document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
       loadArtists();
     }
 
+    // Change Password function
     async function changePassword() {
       const newPass = document.getElementById('new-password').value.trim();
       const confirmPass = document.getElementById('confirm-password').value.trim();
       const msg = document.getElementById('password-message');
 
       msg.textContent = '';
-      msg.style.color = var(--accent-red);
+      msg.style.color = '#ff6b6b';
 
-      if (!newPass || !confirmPass) return msg.textContent = 'Fill both fields';
-      if (newPass !== confirmPass) return msg.textContent = 'Passwords do not match';
-      if (newPass.length < 8) return msg.textContent = 'Password must be at least 8 characters';
+      if (!newPass || !confirmPass) {
+        msg.textContent = 'Please fill both fields';
+        return;
+      }
+      if (newPass !== confirmPass) {
+        msg.textContent = 'Passwords do not match';
+        return;
+      }
+      if (newPass.length < 8) {
+        msg.textContent = 'Password must be at least 8 characters';
+        return;
+      }
 
       msg.textContent = 'Updating...';
-      msg.style.color = var(--paper);
+      msg.style.color = '#fff';
 
       const { error } = await sb.auth.updateUser({ password: newPass });
 
       if (error) {
         msg.textContent = 'Error: ' + error.message;
       } else {
-        msg.textContent = 'Password changed! Logging out — sign in with new one.';
-        msg.style.color = var(--gold);
+        msg.textContent = 'Password updated successfully! Logging out — please log in again with the new password.';
+        msg.style.color = '#1DB954';
         await sb.auth.signOut();
         updateUserInfo();
       }
@@ -497,26 +237,7 @@
       document.getElementById('confirm-password').value = '';
     }
 
-    // Background collage
-    async function initBackground() {
-      const collage = document.getElementById('bg-collage');
-      const { data: artists } = await sb.from('artists').select('portrait_url');
-      if (!artists) return;
-
-      artists.forEach((a, i) => {
-        if (!a.portrait_url) return;
-        const img = document.createElement('img');
-        img.src = a.portrait_url;
-        img.style.left = `${Math.random() * 120 - 10}%`;
-        img.style.top = `${Math.random() * 120 - 10}%`;
-        img.style.animationDelay = `${i * 12}s`;
-        img.style.animationDuration = `${140 + Math.random() * 100}s`;
-        collage.appendChild(img);
-      });
-    }
-
-    // Start everything
-    initBackground();
+    // Initial load
     updateUserInfo();
   </script>
 </body>
