@@ -55,15 +55,13 @@
   </div>
 
   <script>
-  // Force the anon key into every request (fallback if auto-attachment fails)
-  const SUPABASE_URL = 'https://zjtytzhrxgvahwtgpzgc.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ';
+  // Use a different variable name to avoid conflict with global 'supabase' from CDN
+  const sb = supabase.createClient(
+    'https://zjtytzhrxgvahwtgpzgc.supabase.co',
+    'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
+  );
 
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { autoRefreshToken: true, persistSession: true }
-  });
-
-  console.log('Supabase client initialized:', supabase ? 'Yes' : 'No');
+  console.log('Supabase client ready:', sb ? 'Yes' : 'No');
 
   let currentArtist = null;
 
@@ -71,24 +69,21 @@
     document.getElementById('loading').style.display = 'block';
     document.getElementById('artists-grid').style.display = 'none';
 
-    const { data: artists, error } = await supabase
-      .from('artists')
-      .select('*')
-      .order('name');
+    const { data: artists, error } = await sb.from('artists').select('*').order('name');
 
     if (error) {
       console.error('Fetch error:', error);
-      alert('Error loading artists: ' + (error.message || 'Unknown error') + '\nCheck console (F12)');
-      document.getElementById('loading').textContent = 'Error loading – check console';
+      alert('Error loading artists: ' + error.message);
+      document.getElementById('loading').textContent = 'Error loading artists – check console (F12)';
       return;
     }
 
-    console.log('Artists loaded:', artists.length, artists);
+    console.log('Loaded ' + artists.length + ' artists');
 
     const grid = document.getElementById('artists-grid');
     grid.innerHTML = '';
     if (artists.length === 0) {
-      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#aaa;">No artists in database yet.</p>';
+      grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#aaa;">No artists found yet.</p>';
     } else {
       artists.forEach(artist => {
         const card = document.createElement('div');
@@ -107,10 +102,102 @@
     document.getElementById('detail').style.display = 'none';
   }
 
-  // Rest of your functions (showArtist, addPresave, back, login, logout, updateUserInfo) remain the same
-  // ... copy them from your current code ...
+  // showArtist function – replace 'supabase' with 'sb' everywhere
+  async function showArtist(artist) {
+    currentArtist = artist;
+    document.getElementById('detail').style.display = 'block';
+    document.getElementById('artists-grid').style.display = 'none';
+    document.getElementById('artist-name').textContent = artist.name;
+    document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name);
 
-  // Initial calls
+    const spotifyDiv = document.getElementById('spotify-link');
+    spotifyDiv.innerHTML = artist.spotify_url 
+      ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
+      : '';
+
+    const { data: presaves, error } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
+    if (error) {
+      console.error('Presaves fetch error:', error);
+      return;
+    }
+
+    const list = document.getElementById('presaves');
+    list.innerHTML = presaves.length === 0 ? '<li>No presaves yet.</li>' : '';
+    presaves.forEach(p => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = p.url;
+      a.textContent = p.title;
+      a.target = '_blank';
+      if (localStorage.getItem(p.url) === 'clicked') a.classList.add('clicked');
+      a.onclick = () => {
+        localStorage.setItem(p.url, 'clicked');
+        a.classList.add('clicked');
+      };
+
+      const session = sb.auth.getSession();
+      if (session?.data?.session && session.data.session.user.id === artist.owner) {
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = async (e) => {
+          e.preventDefault();
+          if (confirm('Delete this presave?')) {
+            await sb.from('presaves').delete().eq('id', p.id);
+            showArtist(artist);
+          }
+        };
+        li.append(a, delBtn);
+      } else {
+        li.appendChild(a);
+      }
+      list.appendChild(li);
+    });
+
+    const admin = document.getElementById('admin');
+    const session = sb.auth.getSession();
+    admin.style.display = (session?.data?.session && session.data.session.user.id === artist.owner) ? 'block' : 'none';
+  }
+
+  // addPresave – replace supabase with sb
+  async function addPresave() {
+    const title = document.getElementById('new-title').value.trim();
+    const url = document.getElementById('new-url').value.trim();
+    if (!title || !url) return alert('Fill both fields');
+    const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
+    if (error) alert('Error adding: ' + error.message);
+    else {
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-url').value = '';
+      showArtist(currentArtist);
+    }
+  }
+
+  // back, login, logout, updateUserInfo – replace supabase with sb
+  function back() {
+    document.getElementById('detail').style.display = 'none';
+    document.getElementById('artists-grid').style.display = 'grid';
+  }
+
+  async function login() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) alert('Login failed: ' + error.message);
+    else updateUserInfo();
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    updateUserInfo();
+  }
+
+  async function updateUserInfo() {
+    const { data: { session } } = await sb.auth.getSession();
+    document.getElementById('user-info').textContent = session ? 'Logged in – editing enabled for your artist' : '';
+    loadArtists();
+  }
+
+  // Load everything
   loadArtists();
   updateUserInfo();
 </script>
