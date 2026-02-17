@@ -260,7 +260,7 @@
 <body>
   <div class="bg-collage" id="bg-collage"></div>
 
-  <h1>The Digital Outlaws</h1>
+  <h1 style="cursor: pointer;" onclick="goHome()">The Digital Outlaws</h1>
   <div id="user-info"></div>
 
   <div id="loading">Loading artists...</div>
@@ -512,6 +512,12 @@
       document.getElementById('confirm-password').value = '';
     }
 
+    function goHome() {
+  document.getElementById('detail').style.display = 'none';
+  document.getElementById('artists-grid').style.display = 'grid';
+  // Optional: scroll to top smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
     // Start background
     initBackground();
 
