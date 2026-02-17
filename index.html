@@ -292,7 +292,7 @@
   </div>
 
  <script>
-  // Safe init - use 'sb' to avoid global conflict
+  // Safe client init
   const sb = supabase.createClient(
     'https://zjtytzhrxgvahwtgpzgc.supabase.co',
     'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
@@ -309,6 +309,7 @@
     loading.style.display = 'block';
     grid.style.display = 'none';
     loading.textContent = 'Rounding up the outlaws...';
+    loading.style.color = '#d4a017';
 
     try {
       const { data: artists, error } = await sb
@@ -321,7 +322,7 @@
       console.log(`Loaded ${artists.length} artists:`, artists);
 
       grid.innerHTML = artists.length === 0 
-        ? '<p style="grid-column:1/-1; text-align:center; color:#d4a017; font-size:1.4rem;">No outlaws wanted yet</p>'
+        ? '<p style="grid-column:1/-1; text-align:center; color:#d4a017; font-size:1.6rem; padding:40px;">No outlaws wanted yet</p>'
         : '';
 
       artists.forEach(artist => {
@@ -340,14 +341,27 @@
       document.getElementById('detail').style.display = 'none';
     } catch (err) {
       console.error('Load artists failed:', err);
-      loading.textContent = 'Error: ' + (err.message || 'Unknown issue – check console (F12)');
+      loading.innerHTML = `
+        <p style="color:#ff4444; font-size:1.5rem; margin:40px 0;">
+          Error loading outlaws: ${err.message || 'Unknown issue'}<br>
+          <small style="color:#aaa;">Open F12 → Console for details</small>
+        </p>
+      `;
       loading.style.color = '#ff4444';
-      loading.style.fontSize = '1.5rem';
     }
   }
 
-  // Keep your showArtist, addPresave, back, login, logout, updateUserInfo, changePassword functions
-  // (copy them from your current code – no changes needed there unless you see console errors)
+  // Your other functions – copy them here unchanged if needed
+  // showArtist, addPresave, back, login, logout, updateUserInfo, changePassword
+
+  // Make sure updateUserInfo calls loadArtists
+  async function updateUserInfo() {
+    const { data: { user } } = await sb.auth.getUser();
+    document.getElementById('user-info').textContent = user ? `Wanted: ${user.email} (edit your bounties)` : '';
+    document.getElementById('change-password').style.display = user ? 'block' : 'none';
+    document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
+    loadArtists();
+  }
 
   // Initial load
   updateUserInfo();
