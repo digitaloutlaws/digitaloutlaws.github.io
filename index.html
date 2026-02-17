@@ -26,7 +26,7 @@
       position: relative;
       overflow-x: hidden;
     }
-    /* Blurred portrait collage background */
+    /* Floating blurred portrait background */
     .bg-collage {
       position: fixed;
       inset: 0;
@@ -146,7 +146,7 @@
     }
     .artist-card:hover {
       transform: scale(1.08);
-      box-shadow: 0 15px 40px rgba(212,175,0,0.3);
+      box-shadow: 0 15px 40px rgba(255,215,0,0.3);
     }
     .artist-card img {
       width: 100%;
@@ -273,10 +273,11 @@
 
     let currentArtist = null;
 
+    // Load and animate blurred portraits in background
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
       const { data: artists } = await sb.from('artists').select('portrait_url');
-      if (!artists) return;
+      if (!artists || artists.length === 0) return;
 
       artists.forEach((artist, i) => {
         if (!artist.portrait_url) return;
@@ -451,3 +452,4 @@
   </script>
 </body>
 </html>
+          
