@@ -242,27 +242,39 @@
     </div>
   </div>
 
-  <script>
-    const sb = supabase.createClient(
-      'https://zjtytzhrxgvahwtgpzgc.supabase.co',
-      'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
-    );
+<script>
+  // Use 'sb' to avoid global 'supabase' conflict from CDN
+  const sb = supabase.createClient(
+    'https://zjtytzhrxgvahwtgpzgc.supabase.co',
+    'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
+  );
 
-    let currentArtist = null;
+  console.log('Supabase client initialized');
 
-    async function loadArtists() {
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('artists-grid').style.display = 'none';
+  let currentArtist = null;
 
-      const { data: artists, error } = await sb.from('artists').select('*').order('name');
-      if (error) {
-        console.error('Fetch error:', error);
-        document.getElementById('loading').textContent = 'Error loading – check console';
-        return;
-      }
+  async function loadArtists() {
+    const loading = document.getElementById('loading');
+    const grid = document.getElementById('artists-grid');
 
-      const grid = document.getElementById('artists-grid');
-      grid.innerHTML = artists.length === 0 ? '<p style="grid-column:1/-1;text-align:center;color:var(--gold);">No outlaws wanted yet</p>' : '';
+    loading.style.display = 'block';
+    grid.style.display = 'none';
+    loading.textContent = 'Rounding up the outlaws...';
+
+    try {
+      const { data: artists, error } = await sb
+        .from('artists')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+
+      console.log(`Loaded ${artists.length} artists`);
+
+      grid.innerHTML = artists.length === 0 
+        ? '<p style="grid-column:1/-1; text-align:center; color:#d4a017; font-size:1.3rem;">No outlaws wanted yet</p>'
+        : '';
+
       artists.forEach(artist => {
         const card = document.createElement('div');
         card.className = 'artist-card';
@@ -274,23 +286,30 @@
         grid.appendChild(card);
       });
 
-      document.getElementById('loading').style.display = 'none';
+      loading.style.display = 'none';
       grid.style.display = 'grid';
-      document.getElementById('detail').style.display = 'none';
+    } catch (err) {
+      console.error('Artists fetch failed:', err);
+      loading.textContent = 'Error rounding up outlaws: ' + (err.message || 'Check console (F12)');
+      loading.style.color = '#b22222';
     }
+  }
 
-    async function showArtist(artist) {
-      currentArtist = artist;
-      document.getElementById('detail').style.display = 'block';
-      document.getElementById('artists-grid').style.display = 'none';
-      document.getElementById('artist-name').textContent = artist.name;
-      document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/280?text=' + encodeURIComponent(artist.name);
+  async function showArtist(artist) {
+    currentArtist = artist;
+    document.getElementById('detail').style.display = 'block';
+    document.getElementById('artists-grid').style.display = 'none';
+    document.getElementById('artist-name').textContent = artist.name;
+    document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/280?text=' + encodeURIComponent(artist.name);
 
-      document.getElementById('spotify-link').innerHTML = artist.spotify_url 
-        ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:30px 0; padding:18px 40px; font-size:1.5rem;">Listen on Spotify →</button></a>`
-        : '';
+    document.getElementById('spotify-link').innerHTML = artist.spotify_url 
+      ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:30px 0; padding:18px 40px; font-size:1.5rem;">Listen on Spotify →</button></a>`
+      : '';
 
-      const { data: presaves } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
+    try {
+      const { data: presaves, error } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
+      if (error) throw error;
+
       const list = document.getElementById('presaves');
       list.innerHTML = presaves.length === 0 ? '<li style="color:#ccc;">No wanted presaves yet</li>' : '';
       presaves.forEach(p => {
@@ -308,7 +327,7 @@
             const delBtn = document.createElement('button');
             delBtn.textContent = 'Delete';
             delBtn.style.marginLeft = '15px';
-            delBtn.style.background = var(--accent-red);
+            delBtn.style.background = '#b22222';
             delBtn.onclick = async () => {
               if (confirm('Bounty removed?')) {
                 await sb.from('presaves').delete().eq('id', p.id);
@@ -321,87 +340,91 @@
 
         list.appendChild(li);
       });
-
-      const admin = document.getElementById('admin');
-      const { data: { user } } = await sb.auth.getUser();
-      admin.style.display = (user && user.id === artist.owner) ? 'block' : 'none';
+    } catch (err) {
+      console.error('Presaves fetch failed:', err);
+      document.getElementById('presaves').innerHTML = '<li style="color:#b22222;">Error loading presaves</li>';
     }
 
-    async function addPresave() {
-      const title = document.getElementById('new-title').value.trim();
-      const url = document.getElementById('new-url').value.trim();
-      if (!title || !url) return alert('Fill both fields');
+    const admin = document.getElementById('admin');
+    const { data: { user } } = await sb.auth.getUser();
+    admin.style.display = (user && user.id === artist.owner) ? 'block' : 'none';
+  }
 
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user || user.id !== currentArtist.owner) return alert("Only the owner can add bounties.");
+  async function addPresave() {
+    const title = document.getElementById('new-title').value.trim();
+    const url = document.getElementById('new-url').value.trim();
+    if (!title || !url) return alert('Fill both fields');
 
-      const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
-      if (error) alert('Error: ' + error.message);
-      else {
-        document.getElementById('new-title').value = '';
-        document.getElementById('new-url').value = '';
-        showArtist(currentArtist);
-      }
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user || user.id !== currentArtist.owner) return alert("Only the owner can add bounties.");
+
+    const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
+    if (error) alert('Error: ' + error.message);
+    else {
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-url').value = '';
+      showArtist(currentArtist);
     }
+  }
 
-    function back() {
-      document.getElementById('detail').style.display = 'none';
-      document.getElementById('artists-grid').style.display = 'grid';
-    }
+  function back() {
+    document.getElementById('detail').style.display = 'none';
+    document.getElementById('artists-grid').style.display = 'grid';
+  }
 
-    async function login() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) alert('Login failed: ' + error.message);
-      else updateUserInfo();
-    }
+  async function login() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) alert('Login failed: ' + error.message);
+    else updateUserInfo();
+  }
 
-    async function logout() {
+  async function logout() {
+    await sb.auth.signOut();
+    updateUserInfo();
+  }
+
+  async function updateUserInfo() {
+    const { data: { user } } = await sb.auth.getUser();
+    document.getElementById('user-info').textContent = user ? `Wanted: ${user.email} (edit your bounties)` : '';
+    document.getElementById('change-password').style.display = user ? 'block' : 'none';
+    document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
+    loadArtists();
+  }
+
+  async function changePassword() {
+    const newPass = document.getElementById('new-password').value.trim();
+    const confirmPass = document.getElementById('confirm-password').value.trim();
+    const msg = document.getElementById('password-message');
+
+    msg.textContent = '';
+    msg.style.color = '#b22222';
+
+    if (!newPass || !confirmPass) return msg.textContent = 'Fill both fields';
+    if (newPass !== confirmPass) return msg.textContent = 'Passwords do not match';
+    if (newPass.length < 8) return msg.textContent = 'Password must be at least 8 characters';
+
+    msg.textContent = 'Updating bounty...';
+    msg.style.color = '#f5e8c7';
+
+    const { error } = await sb.auth.updateUser({ password: newPass });
+
+    if (error) {
+      msg.textContent = 'Error: ' + error.message;
+    } else {
+      msg.textContent = 'Password changed! Logging out — sign in with new credentials.';
+      msg.style.color = '#d4a017';
       await sb.auth.signOut();
       updateUserInfo();
     }
 
-    async function updateUserInfo() {
-      const { data: { user } } = await sb.auth.getUser();
-      document.getElementById('user-info').textContent = user ? `Wanted: ${user.email} (edit your bounties)` : '';
-      document.getElementById('change-password').style.display = user ? 'block' : 'none';
-      document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
-      loadArtists();
-    }
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+  }
 
-    async function changePassword() {
-      const newPass = document.getElementById('new-password').value.trim();
-      const confirmPass = document.getElementById('confirm-password').value.trim();
-      const msg = document.getElementById('password-message');
-
-      msg.textContent = '';
-      msg.style.color = var(--accent-red);
-
-      if (!newPass || !confirmPass) return msg.textContent = 'Fill both fields';
-      if (newPass !== confirmPass) return msg.textContent = 'Passwords do not match';
-      if (newPass.length < 8) return msg.textContent = 'Password must be at least 8 characters';
-
-      msg.textContent = 'Updating bounty...';
-      msg.style.color = var(--paper);
-
-      const { error } = await sb.auth.updateUser({ password: newPass });
-
-      if (error) {
-        msg.textContent = 'Error: ' + error.message;
-      } else {
-        msg.textContent = 'Password changed! Logging out — sign in with new credentials.';
-        msg.style.color = var(--gold);
-        await sb.auth.signOut();
-        updateUserInfo();
-      }
-
-      document.getElementById('new-password').value = '';
-      document.getElementById('confirm-password').value = '';
-    }
-
-    // Initial load
-    updateUserInfo();
-  </script>
+  // Initial load
+  updateUserInfo();
+</script>
 </body>
 </html>
