@@ -7,31 +7,32 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #1a0f0a;
-      --card: #2c1f14;
-      --leather: #8b5a2b;
-      --gold: #d4a017;
-      --paper: #f5e8c7;
-      --red: #b22222;
-      --shadow: rgba(0,0,0,0.8);
+      --bg: #000000;
+      --dark: #0f0f0f;
+      --card: rgba(15,15,15,0.85);
+      --gold: #ffd700;
+      --gold-dark: #d4af37;
+      --text: #f0f0f0;
+      --accent: #ff4444;
+      --shadow: rgba(0,0,0,0.9);
     }
     body {
       font-family: Arial, sans-serif;
       background: var(--bg);
-      color: #fff;
+      color: var(--text);
       margin: 0;
       padding: 0;
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
     }
-    /* Blurred dynamic portrait background */
+    /* Blurred portrait collage background */
     .bg-collage {
       position: fixed;
       inset: 0;
       z-index: -2;
-      opacity: 0.12;
-      filter: blur(16px);
+      opacity: 0.08;
+      filter: blur(18px);
       pointer-events: none;
       overflow: hidden;
     }
@@ -41,32 +42,57 @@
       height: 400px;
       object-fit: cover;
       border-radius: 50%;
-      animation: drift 240s infinite linear;
+      animation: drift 200s infinite linear;
       will-change: transform;
     }
     @keyframes drift {
-      0% { transform: translate(-100%, -100%) rotate(0deg); }
-      100% { transform: translate(200vw, 200vh) rotate(360deg); }
+      0% { transform: translate(-80%, -80%) rotate(0deg); }
+      100% { transform: translate(180vw, 180vh) rotate(360deg); }
+    }
+    header {
+      text-align: center;
+      padding: 60px 20px 30px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+      border-bottom: 4px solid var(--gold);
+      position: relative;
+      z-index: 1;
     }
     h1 {
-      text-align: center;
+      font-size: 4rem;
       color: var(--gold);
-      font-size: 3.5rem;
-      margin: 40px 0 10px;
-      text-shadow: 0 0 20px rgba(212,160,23,0.5);
+      margin: 0;
+      text-shadow: 0 0 25px rgba(255,215,0,0.5);
+      letter-spacing: 4px;
+    }
+    .tagline {
+      font-size: 1.4rem;
+      color: #ccc;
+      margin: 10px 0 0;
+      font-style: italic;
     }
     #user-info {
       text-align: center;
       color: var(--gold);
-      margin: 10px 0 30px;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    .auth-container {
+      max-width: 700px;
+      margin: 30px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
     }
     #login, #change-password {
-      max-width: 500px;
-      margin: 0 auto 30px;
+      flex: 1;
+      min-width: 320px;
       padding: 30px;
-      background: rgba(139,90,43,0.15);
-      border: 2px solid var(--leather);
+      background: var(--card);
+      border: 2px solid var(--gold-dark);
       border-radius: 12px;
       box-shadow: 0 10px 30px var(--shadow);
     }
@@ -74,8 +100,8 @@
       width: 100%;
       padding: 14px;
       margin: 10px 0;
-      background: #222;
-      border: 1px solid var(--leather);
+      background: #111;
+      border: 1px solid #444;
       border-radius: 6px;
       color: white;
       font-size: 1.1rem;
@@ -90,8 +116,8 @@
       transition: all 0.2s;
     }
     button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px var(--shadow); }
-    #login button, #change-password button { background: var(--gold); color: #1a0f00; }
-    #logout { background: var(--red); color: white; }
+    #login button, #change-password button { background: var(--gold); color: #000; }
+    #logout { background: var(--accent); color: white; }
     #password-message { margin-top: 12px; font-size: 1rem; min-height: 1.4em; }
     #loading {
       text-align: center;
@@ -106,6 +132,8 @@
       padding: 40px 20px;
       max-width: 1400px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
     .artist-card {
       text-align: center;
@@ -118,13 +146,13 @@
     }
     .artist-card:hover {
       transform: scale(1.08);
-      box-shadow: 0 15px 40px rgba(212,160,23,0.3);
+      box-shadow: 0 15px 40px rgba(212,175,0,0.3);
     }
     .artist-card img {
       width: 100%;
       aspect-ratio: 1/1;
       object-fit: cover;
-      border-bottom: 4px solid var(--leather);
+      border-bottom: 4px solid var(--gold);
     }
     .artist-card h3 {
       margin: 12px 0;
@@ -142,7 +170,7 @@
     #detail h2 { color: var(--gold); }
     #spotify-link button {
       background: var(--gold);
-      color: #1a0f00;
+      color: #000;
       padding: 16px 32px;
       font-size: 1.3rem;
     }
@@ -150,25 +178,28 @@
       list-style: none;
       padding: 0;
       margin: 20px 0;
+      background: rgba(245,232,199,0.05);
+      border-radius: 12px;
+      padding: 20px;
     }
     #presaves li {
       margin: 15px 0;
       padding: 15px;
-      background: rgba(245,232,199,0.08);
+      background: rgba(255,255,255,0.03);
       border-radius: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 1.2em;
     }
     #presaves a {
       color: var(--paper);
       text-decoration: none;
       flex: 1;
-      font-size: 1.2em;
     }
     #presaves a.clicked { opacity: 0.6; text-decoration: line-through; }
     #presaves button {
-      background: var(--red);
+      background: var(--accent);
       color: white;
       padding: 10px 20px;
       margin-left: 15px;
@@ -176,19 +207,20 @@
     #admin {
       margin: 30px 0;
       padding: 25px;
-      background: rgba(139,90,43,0.2);
+      background: rgba(0,0,0,0.6);
+      border: 2px solid var(--gold);
       border-radius: 12px;
     }
     #admin input {
       width: 100%;
       padding: 14px;
       margin: 12px 0;
-      background: #222;
-      border: 1px solid var(--leather);
+      background: #111;
+      border: 1px solid #444;
       border-radius: 6px;
       color: white;
     }
-    #admin button { background: var(--gold); color: #1a0f00; }
+    #admin button { background: var(--gold); color: #000; }
   </style>
 </head>
 <body>
@@ -197,19 +229,21 @@
   <h1>The Digital Outlaws</h1>
   <div id="user-info"></div>
 
-  <div id="login">
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <button onclick="logout()">Logout</button>
-  </div>
+  <div class="auth-container">
+    <div id="login">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <button id="logout-btn" onclick="logout()" style="display:none;">Logout</button>
+    </div>
 
-  <div id="change-password" style="display:none;">
-    <h3>Change Your Password</h3>
-    <input type="password" id="new-password" placeholder="New Password" />
-    <input type="password" id="confirm-password" placeholder="Confirm New Password" />
-    <button onclick="changePassword()">Update Password</button>
-    <p id="password-message"></p>
+    <div id="change-password" style="display:none;">
+      <h3>Change Your Password</h3>
+      <input type="password" id="new-password" placeholder="New Password" />
+      <input type="password" id="confirm-password" placeholder="Confirm New Password" />
+      <button onclick="changePassword()">Update Password</button>
+      <p id="password-message"></p>
+    </div>
   </div>
 
   <div id="loading">Loading artists...</div>
@@ -239,20 +273,19 @@
 
     let currentArtist = null;
 
-    // Load artist portraits into blurred background
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
       const { data: artists } = await sb.from('artists').select('portrait_url');
       if (!artists) return;
 
-      artists.forEach((artist, index) => {
+      artists.forEach((artist, i) => {
         if (!artist.portrait_url) return;
         const img = document.createElement('img');
         img.src = artist.portrait_url;
         img.style.left = `${Math.random() * 120 - 10}%`;
         img.style.top = `${Math.random() * 120 - 10}%`;
-        img.style.animationDelay = `${index * 10}s`;
-        img.style.animationDuration = `${120 + Math.random() * 80}s`;
+        img.style.animationDelay = `${i * 8}s`;
+        img.style.animationDuration = `${100 + Math.random() * 100}s`;
         collage.appendChild(img);
       });
     }
@@ -264,7 +297,7 @@
       const { data: artists, error } = await sb.from('artists').select('*').order('name');
       if (error) {
         console.error('Fetch error:', error);
-        document.getElementById('loading').textContent = 'Error loading artists – check console';
+        document.getElementById('loading').textContent = 'Error loading – check console';
         return;
       }
 
@@ -402,7 +435,7 @@
         msg.textContent = 'Error: ' + error.message;
       } else {
         msg.textContent = 'Password updated successfully! Logging out — please log in again with the new password.';
-        msg.style.color = '#1DB954';
+        msg.style.color = '#ffd700';
         await sb.auth.signOut();
         updateUserInfo();
       }
