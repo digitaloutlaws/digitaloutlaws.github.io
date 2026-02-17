@@ -281,11 +281,11 @@
 
   <div class="auth-container">
     <div id="login">
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <button id="logout-btn" onclick="logout()" style="display:none;">Logout</button>
-    </div>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <button id="logout-btn" onclick="logout()" style="display:none; background:#ff4444; color:white; margin-left:10px;">Logout</button>
+</div>
 
     <div id="change-password" style="display:none;">
       <h3>Change Your Password</h3>
@@ -475,6 +475,7 @@
       const { data: { user } } = await sb.auth.getUser();
       document.getElementById('user-info').textContent = user ? 'Logged in as ' + user.email + ' (edit your presaves)' : '';
       document.getElementById('change-password').style.display = user ? 'block' : 'none';
+      document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
       loadArtists();
     }
 
