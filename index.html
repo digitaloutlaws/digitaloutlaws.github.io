@@ -262,6 +262,12 @@
 
   <h1 style="cursor: pointer;" onclick="goHome()">The Digital Outlaws</h1>
   <div id="user-info"></div>
+  
+<!-- Random Spotify Player -->
+<div id="spotify-player" style="text-align:center; margin:40px auto; max-width:660px; padding:20px; background:rgba(0,0,0,0.6); border-radius:12px; border:1px solid #444;">
+  <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random, changes on refresh)</h3>
+  <iframe id="spotify-iframe" style="border-radius:12px;" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+</div>
 
   <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
@@ -521,8 +527,53 @@
     // Start background
     initBackground();
 
+    // Load random Spotify embed on page load
+async function loadRandomSpotifyPlayer() {
+  const playerDiv = document.getElementById('spotify-player');
+  const iframe = document.getElementById('spotify-iframe');
+
+  try {
+    // Get all artists with a valid embed URL
+    const { data: artists, error } = await sb
+      .from('artists')
+      .select('spotify_embed_url')
+      .not('spotify_embed_url', 'is', null);
+
+    if (error || !artists || artists.length === 0) {
+      console.log('No embed URLs found');
+      playerDiv.style.display = 'none';
+      return;
+    }
+
+    // Pick a random one
+    const randomEmbed = artists[Math.floor(Math.random() * artists.length)].spotify_embed_url;
+
+    // Set iframe src
+    iframe.src = randomEmbed;
+    playerDiv.style.display = 'block';
+  } catch (err) {
+    console.error('Spotify player error:', err);
+    playerDiv.style.display = 'none';
+  }
+}
+
+// Call it after loading artists (or on page load)
+loadRandomSpotifyPlayer();
+
+// Optional: Rotate every 30 minutes (1800000 ms = 30 min)
+setInterval(loadRandomSpotifyPlayer, 1800000);
+
     // Initial load
     updateUserInfo();
+
+    // Start background
+initBackground();
+
+// Load random player
+loadRandomSpotifyPlayer();
+
+// Initial load
+updateUserInfo();
   </script>
 </body>
 </html>
