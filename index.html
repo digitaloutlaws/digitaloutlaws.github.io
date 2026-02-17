@@ -8,13 +8,13 @@
   <style>
     :root {
       --bg: #000000;
-      --dark: #0f0f0f;
-      --card: rgba(15,15,15,0.85);
+      --dark: #0a0a0a;
+      --card: rgba(20,20,20,0.9);
       --gold: #ffd700;
       --gold-dark: #d4af37;
-      --text: #f0f0f0;
+      --text: #f8f8f8;
       --accent: #ff4444;
-      --shadow: rgba(0,0,0,0.9);
+      --shadow: rgba(0,0,0,0.95);
     }
     body {
       font-family: Arial, sans-serif;
@@ -26,33 +26,33 @@
       position: relative;
       overflow-x: hidden;
     }
-    /* Floating blurred portrait background */
+    /* Floating, clearer portrait background */
     .bg-collage {
       position: fixed;
       inset: 0;
       z-index: -2;
-      opacity: 0.08;
-      filter: blur(18px);
+      opacity: 0.25; /* Increased visibility */
+      filter: blur(8px); /* Reduced blur so portraits are recognizable */
       pointer-events: none;
       overflow: hidden;
     }
     .bg-collage img {
       position: absolute;
-      width: 400px;
-      height: 400px;
+      width: 500px; /* Larger images */
+      height: 500px;
       object-fit: cover;
       border-radius: 50%;
-      animation: drift 200s infinite linear;
+      animation: drift 300s infinite linear; /* Slower, more cinematic drift */
       will-change: transform;
     }
     @keyframes drift {
-      0% { transform: translate(-80%, -80%) rotate(0deg); }
-      100% { transform: translate(180vw, 180vh) rotate(360deg); }
+      0% { transform: translate(-60%, -60%) rotate(0deg); }
+      100% { transform: translate(160vw, 160vh) rotate(360deg); }
     }
     header {
       text-align: center;
       padding: 60px 20px 30px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+      background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.8));
       border-bottom: 4px solid var(--gold);
       position: relative;
       z-index: 1;
@@ -61,7 +61,7 @@
       font-size: 4rem;
       color: var(--gold);
       margin: 0;
-      text-shadow: 0 0 25px rgba(255,215,0,0.5);
+      text-shadow: 0 0 25px rgba(255,215,0,0.6);
       letter-spacing: 4px;
     }
     .tagline {
@@ -178,19 +178,20 @@
       list-style: none;
       padding: 0;
       margin: 20px 0;
-      background: rgba(245,232,199,0.05);
+      background: rgba(0,0,0,0.6);
       border-radius: 12px;
       padding: 20px;
     }
     #presaves li {
       margin: 15px 0;
       padding: 15px;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.05);
       border-radius: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 1.2em;
+      border-left: 4px solid var(--gold);
     }
     #presaves a {
       color: var(--paper);
@@ -273,7 +274,7 @@
 
     let currentArtist = null;
 
-    // Load and animate blurred portraits in background
+    // Load portraits into floating background
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
       const { data: artists } = await sb.from('artists').select('portrait_url');
@@ -285,8 +286,8 @@
         img.src = artist.portrait_url;
         img.style.left = `${Math.random() * 120 - 10}%`;
         img.style.top = `${Math.random() * 120 - 10}%`;
-        img.style.animationDelay = `${i * 8}s`;
-        img.style.animationDuration = `${100 + Math.random() * 100}s`;
+        img.style.animationDelay = `${i * 10}s`;
+        img.style.animationDuration = `${180 + Math.random() * 120}s`;
         collage.appendChild(img);
       });
     }
@@ -444,7 +445,7 @@
       document.getElementById('confirm-password').value = '';
     }
 
-    // Start background
+    // Start background collage
     initBackground();
 
     // Initial load
@@ -452,4 +453,3 @@
   </script>
 </body>
 </html>
-          
