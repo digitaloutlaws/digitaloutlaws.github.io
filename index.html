@@ -10,11 +10,12 @@
     h1 { text-align: center; color: #1DB954; }
     #login { text-align: center; margin: 20px; }
     #user-info { text-align: center; color: #1DB954; }
+    #loading { text-align: center; font-size: 1.2em; color: #aaa; margin: 40px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
     .artist-card { text-align: center; cursor: pointer; }
     .artist-card img { width: 100%; max-width: 200px; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%; border: 4px solid #333; }
     .artist-card h3 { margin: 10px 0; }
-    #detail { margin: 40px 0; text-align: center; }
+    #detail { margin: 40px 0; text-align: center; display: none; }
     #presaves { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
     #presaves li { margin: 15px 0; }
     #presaves a { display: block; padding: 15px; background: #1DB954; color: white; text-decoration: none; border-radius: 8px; font-size: 1.2em; }
@@ -34,9 +35,10 @@
     <button onclick="logout()">Logout</button>
   </div>
 
-  <div class="grid" id="artists-grid"></div>
+  <div id="loading">Loading artists...</div>
+  <div class="grid" id="artists-grid" style="display:none;"></div>
 
-  <div id="detail" style="display:none;">
+  <div id="detail">
     <button onclick="back()">← Back to artists</button>
     <h2 id="artist-name"></h2>
     <img id="artist-portrait" style="width:200px; height:200px; object-fit:cover; border-radius:50%;" />
@@ -45,7 +47,7 @@
     <ul id="presaves"></ul>
 
     <div id="admin">
-      <h3>Edit Presaves (artists only)</h3>
+      <h3>Edit Presaves (your artist only)</h3>
       <input id="new-title" placeholder="Title (e.g. New Single)" />
       <input id="new-url" placeholder="Presave URL" />
       <button onclick="addPresave()">Add Presave</button>
@@ -53,7 +55,7 @@
   </div>
 
   <script>
-    const supabase = Supabase.createClient(
+    const supabase = supabase.createClient(
       'https://zjtytzhrxgvahwtgpzgc.supabase.co',
       'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
     );
@@ -61,23 +63,35 @@
     let currentArtist = null;
 
     async function loadArtists() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('artists-grid').style.display = 'none';
+
       const { data: artists, error } = await supabase.from('artists').select('*').order('name');
       if (error) {
-        console.error('Error loading artists:', error);
+        console.error('Error fetching artists:', error);
+        document.getElementById('loading').textContent = 'Error loading artists: ' + error.message;
         return;
       }
+
       const grid = document.getElementById('artists-grid');
       grid.innerHTML = '';
-      artists.forEach(artist => {
-        const card = document.createElement('div');
-        card.className = 'artist-card';
-        card.innerHTML = `
-          <img src="${artist.portrait_url || 'https://via.placeholder.com/200?text=No+Photo'}" alt="${artist.name}">
-          <h3>${artist.name}</h3>
-        `;
-        card.onclick = () => showArtist(artist);
-        grid.appendChild(card);
-      });
+      if (artists.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No artists added yet.</p>';
+      } else {
+        artists.forEach(artist => {
+          const card = document.createElement('div');
+          card.className = 'artist-card';
+          card.innerHTML = `
+            <img src="${artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name)}" alt="${artist.name}">
+            <h3>${artist.name}</h3>
+          `;
+          card.onclick = () => showArtist(artist);
+          grid.appendChild(card);
+        });
+      }
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('artists-grid').style.display = 'grid';
       document.getElementById('detail').style.display = 'none';
     }
 
@@ -86,23 +100,21 @@
       document.getElementById('detail').style.display = 'block';
       document.getElementById('artists-grid').style.display = 'none';
       document.getElementById('artist-name').textContent = artist.name;
-      document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=No+Photo';
+      document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name);
 
       const spotifyDiv = document.getElementById('spotify-link');
-      if (artist.spotify_url) {
-        spotifyDiv.innerHTML = `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`;
-      } else {
-        spotifyDiv.innerHTML = '';
-      }
+      spotifyDiv.innerHTML = artist.spotify_url 
+        ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
+        : '';
 
       const { data: presaves, error } = await supabase.from('presaves').select('*').eq('artist_id', artist.id);
       if (error) {
-        console.error('Error loading presaves:', error);
+        console.error('Presaves error:', error);
         return;
       }
 
       const list = document.getElementById('presaves');
-      list.innerHTML = '';
+      list.innerHTML = presaves.length === 0 ? '<li>No presaves yet.</li>' : '';
       presaves.forEach(p => {
         const li = document.createElement('li');
         const a = document.createElement('a');
@@ -115,44 +127,36 @@
           a.classList.add('clicked');
         };
 
-        // Edit/delete buttons for owner
-        const session = await supabase.auth.getSession();
-        if (session.data.session && session.data.session.user.id === artist.owner) {
-          const editBtn = document.createElement('button');
-          editBtn.textContent = 'Delete';
-          editBtn.onclick = async (e) => {
+        const session = supabase.auth.getSession();
+        if (session?.data?.session && session.data.session.user.id === artist.owner) {
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'Delete';
+          delBtn.onclick = async (e) => {
             e.preventDefault();
-            if (confirm('Delete this presave?')) {
+            if (confirm('Delete this?')) {
               await supabase.from('presaves').delete().eq('id', p.id);
               showArtist(artist);
             }
           };
-          li.appendChild(a);
-          li.appendChild(editBtn);
+          li.append(a, delBtn);
         } else {
           li.appendChild(a);
         }
         list.appendChild(li);
       });
 
-      // Show admin form only for owner
       const admin = document.getElementById('admin');
-      const session = await supabase.auth.getSession();
-      if (session.data.session && session.data.session.user.id === artist.owner) {
-        admin.style.display = 'block';
-      } else {
-        admin.style.display = 'none';
-      }
+      const session = supabase.auth.getSession();
+      admin.style.display = (session?.data?.session && session.data.session.user.id === artist.owner) ? 'block' : 'none';
     }
 
     async function addPresave() {
       const title = document.getElementById('new-title').value.trim();
       const url = document.getElementById('new-url').value.trim();
-      if (!title || !url) return alert('Please fill both title and URL');
+      if (!title || !url) return alert('Fill both fields');
       const { error } = await supabase.from('presaves').insert({ artist_id: currentArtist.id, title, url });
-      if (error) {
-        alert('Error adding presave: ' + error.message);
-      } else {
+      if (error) alert('Error: ' + error.message);
+      else {
         document.getElementById('new-title').value = '';
         document.getElementById('new-url').value = '';
         showArtist(currentArtist);
@@ -167,7 +171,7 @@
     async function login() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         alert('Login failed: ' + error.message);
       } else {
@@ -182,16 +186,12 @@
 
     async function updateUserInfo() {
       const { data: { session } } = await supabase.auth.getSession();
-      const info = document.getElementById('user-info');
-      if (session) {
-        info.textContent = `Logged in (editing enabled for your artist)`;
-      } else {
-        info.textContent = '';
-      }
+      document.getElementById('user-info').textContent = session ? 'Logged in (can edit your presaves)' : '';
       loadArtists();
     }
 
-    // Initial load
+    // Load immediately for guests
+    loadArtists();
     updateUserInfo();
   </script>
 </body>
