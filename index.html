@@ -262,11 +262,19 @@
 
   <h1 style="cursor: pointer;" onclick="goHome()">The Digital Outlaws</h1>
   <div id="user-info"></div>
+
+  // randon spotify player
   
-<!-- Random Spotify Player -->
-<div id="spotify-player" style="text-align:center; margin:40px auto; max-width:660px; padding:20px; background:rgba(0,0,0,0.6); border-radius:12px; border:1px solid #444;">
-  <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random, changes on refresh)</h3>
-  <iframe id="spotify-iframe" style="border-radius:12px;" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+<div id="spotify-player" style="text-align:center; margin:40px auto; max-width:900px; padding:20px; background:rgba(0,0,0,0.6); border-radius:12px; border:1px solid #444;">
+  <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random artist)</h3>
+  <iframe id="spotify-iframe" 
+    style="border-radius:12px;" 
+    width="100%" 
+    height="380"  <!-- Increased from 352 to 380 for more content visibility -->
+    frameborder="0" 
+    allowfullscreen="" 
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+    loading="lazy"></iframe>
 </div>
 
   <div id="loading">Loading artists...</div>
