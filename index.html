@@ -6,29 +6,194 @@
   <title>The Digital Outlaws • Spotify Presaves</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #121212; color: #fff; }
-    h1 { text-align: center; color: #1DB954; }
-    #login, #change-password { text-align: center; margin: 20px; }
-    #user-info { text-align: center; color: #1DB954; }
-    #loading { text-align: center; font-size: 1.2em; color: #aaa; margin: 40px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-    .artist-card { text-align: center; cursor: pointer; }
-    .artist-card img { width: 100%; max-width: 200px; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%; border: 4px solid #333; }
-    .artist-card h3 { margin: 10px 0; }
-    #detail { margin: 40px 0; text-align: center; display: none; }
-    #presaves { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
-    #presaves li { margin: 15px 0; }
-    #presaves a { display: block; padding: 15px; background: #1DB954; color: white; text-decoration: none; border-radius: 8px; font-size: 1.2em; }
-    #presaves a.clicked { background: #666; }
-    #admin { margin: 30px; padding: 20px; background: #222; border-radius: 8px; display: none; }
-    input, button { padding: 10px; margin: 5px; font-size: 1em; border-radius: 4px; }
-    button { background: #1DB954; color: white; border: none; cursor: pointer; }
-    #password-message { color: #ff6b6b; font-size: 0.9em; margin-top: 5px; }
-    #change-password button { background: #1DB954; width: 180px; }
-    #change-password input { width: 220px; }
+    :root {
+      --bg: #1a0f0a;
+      --card: #2c1f14;
+      --leather: #8b5a2b;
+      --gold: #d4a017;
+      --paper: #f5e8c7;
+      --red: #b22222;
+      --shadow: rgba(0,0,0,0.8);
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    /* Blurred dynamic portrait background */
+    .bg-collage {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      opacity: 0.12;
+      filter: blur(16px);
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-collage img {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 50%;
+      animation: drift 240s infinite linear;
+      will-change: transform;
+    }
+    @keyframes drift {
+      0% { transform: translate(-100%, -100%) rotate(0deg); }
+      100% { transform: translate(200vw, 200vh) rotate(360deg); }
+    }
+    h1 {
+      text-align: center;
+      color: var(--gold);
+      font-size: 3.5rem;
+      margin: 40px 0 10px;
+      text-shadow: 0 0 20px rgba(212,160,23,0.5);
+    }
+    #user-info {
+      text-align: center;
+      color: var(--gold);
+      margin: 10px 0 30px;
+      font-size: 1.2rem;
+    }
+    #login, #change-password {
+      max-width: 500px;
+      margin: 0 auto 30px;
+      padding: 30px;
+      background: rgba(139,90,43,0.15);
+      border: 2px solid var(--leather);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      background: #222;
+      border: 1px solid var(--leather);
+      border-radius: 6px;
+      color: white;
+      font-size: 1.1rem;
+    }
+    button {
+      padding: 14px 28px;
+      margin: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px var(--shadow); }
+    #login button, #change-password button { background: var(--gold); color: #1a0f00; }
+    #logout { background: var(--red); color: white; }
+    #password-message { margin-top: 12px; font-size: 1rem; min-height: 1.4em; }
+    #loading {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--gold);
+      margin: 80px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+      padding: 40px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .artist-card {
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+    .artist-card:hover {
+      transform: scale(1.08);
+      box-shadow: 0 15px 40px rgba(212,160,23,0.3);
+    }
+    .artist-card img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-bottom: 4px solid var(--leather);
+    }
+    .artist-card h3 {
+      margin: 12px 0;
+      color: var(--paper);
+    }
+    #detail {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 30px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px var(--shadow);
+      display: none;
+    }
+    #detail h2 { color: var(--gold); }
+    #spotify-link button {
+      background: var(--gold);
+      color: #1a0f00;
+      padding: 16px 32px;
+      font-size: 1.3rem;
+    }
+    #presaves {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    #presaves li {
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(245,232,199,0.08);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #presaves a {
+      color: var(--paper);
+      text-decoration: none;
+      flex: 1;
+      font-size: 1.2em;
+    }
+    #presaves a.clicked { opacity: 0.6; text-decoration: line-through; }
+    #presaves button {
+      background: var(--red);
+      color: white;
+      padding: 10px 20px;
+      margin-left: 15px;
+    }
+    #admin {
+      margin: 30px 0;
+      padding: 25px;
+      background: rgba(139,90,43,0.2);
+      border-radius: 12px;
+    }
+    #admin input {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      background: #222;
+      border: 1px solid var(--leather);
+      border-radius: 6px;
+      color: white;
+    }
+    #admin button { background: var(--gold); color: #1a0f00; }
   </style>
 </head>
 <body>
+  <div class="bg-collage" id="bg-collage"></div>
+
   <h1>The Digital Outlaws</h1>
   <div id="user-info"></div>
 
@@ -39,7 +204,6 @@
     <button onclick="logout()">Logout</button>
   </div>
 
-  <!-- Change Password Form – appears only when logged in -->
   <div id="change-password" style="display:none;">
     <h3>Change Your Password</h3>
     <input type="password" id="new-password" placeholder="New Password" />
@@ -75,14 +239,32 @@
 
     let currentArtist = null;
 
+    // Load artist portraits into blurred background
+    async function initBackground() {
+      const collage = document.getElementById('bg-collage');
+      const { data: artists } = await sb.from('artists').select('portrait_url');
+      if (!artists) return;
+
+      artists.forEach((artist, index) => {
+        if (!artist.portrait_url) return;
+        const img = document.createElement('img');
+        img.src = artist.portrait_url;
+        img.style.left = `${Math.random() * 120 - 10}%`;
+        img.style.top = `${Math.random() * 120 - 10}%`;
+        img.style.animationDelay = `${index * 10}s`;
+        img.style.animationDuration = `${120 + Math.random() * 80}s`;
+        collage.appendChild(img);
+      });
+    }
+
     async function loadArtists() {
       document.getElementById('loading').style.display = 'block';
       document.getElementById('artists-grid').style.display = 'none';
 
       const { data: artists, error } = await sb.from('artists').select('*').order('name');
       if (error) {
-        console.error('Artists fetch error:', error);
-        document.getElementById('loading').textContent = 'Error loading – check console';
+        console.error('Fetch error:', error);
+        document.getElementById('loading').textContent = 'Error loading artists – check console';
         return;
       }
 
@@ -111,7 +293,7 @@
       document.getElementById('artist-name').textContent = artist.name;
       document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name);
 
-      document.getElementById('spotify-link').innerHTML = artist.spotify_url 
+      document.getElementById('spotify-link').innerHTML = artist.spotify_url
         ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
         : '';
 
@@ -157,12 +339,10 @@
       const title = document.getElementById('new-title').value.trim();
       const url = document.getElementById('new-url').value.trim();
       if (!title || !url) return alert('Fill both fields');
-
       const { data: { user } } = await sb.auth.getUser();
       if (!user || user.id !== currentArtist.owner) {
         return alert("You must be the owner to add presaves.");
       }
-
       const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
       if (error) alert('Error: ' + error.message);
       else {
@@ -197,15 +377,12 @@
       loadArtists();
     }
 
-    // Change Password function
     async function changePassword() {
       const newPass = document.getElementById('new-password').value.trim();
       const confirmPass = document.getElementById('confirm-password').value.trim();
       const msg = document.getElementById('password-message');
-
       msg.textContent = '';
       msg.style.color = '#ff6b6b';
-
       if (!newPass || !confirmPass) {
         msg.textContent = 'Please fill both fields';
         return;
@@ -218,12 +395,9 @@
         msg.textContent = 'Password must be at least 8 characters';
         return;
       }
-
       msg.textContent = 'Updating...';
       msg.style.color = '#fff';
-
       const { error } = await sb.auth.updateUser({ password: newPass });
-
       if (error) {
         msg.textContent = 'Error: ' + error.message;
       } else {
@@ -232,10 +406,12 @@
         await sb.auth.signOut();
         updateUserInfo();
       }
-
       document.getElementById('new-password').value = '';
       document.getElementById('confirm-password').value = '';
     }
+
+    // Start background
+    initBackground();
 
     // Initial load
     updateUserInfo();
