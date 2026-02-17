@@ -8,13 +8,14 @@
   <style>
     :root {
       --bg: #000000;
-      --dark: #0a0a0a;
-      --card: rgba(20,20,20,0.9);
+      --dark: #0f0f0f;
+      --card: rgba(15,15,15,0.85);
       --gold: #ffd700;
       --gold-dark: #d4af37;
-      --text: #f8f8f8;
+      --text: #f0f0f0;
       --accent: #ff4444;
-      --shadow: rgba(0,0,0,0.95);
+      --shadow: rgba(0,0,0,0.9);
+      --green-check: #1DB954;
     }
     body {
       font-family: Arial, sans-serif;
@@ -26,23 +27,23 @@
       position: relative;
       overflow-x: hidden;
     }
-    /* Floating, clearer portrait background */
+    /* Floating blurred portrait background */
     .bg-collage {
       position: fixed;
       inset: 0;
       z-index: -2;
-      opacity: 0.25; /* Increased visibility */
-      filter: blur(8px); /* Reduced blur so portraits are recognizable */
+      opacity: 0.25;
+      filter: blur(8px);
       pointer-events: none;
       overflow: hidden;
     }
     .bg-collage img {
       position: absolute;
-      width: 500px; /* Larger images */
+      width: 500px;
       height: 500px;
       object-fit: cover;
       border-radius: 50%;
-      animation: drift 300s infinite linear; /* Slower, more cinematic drift */
+      animation: drift 300s infinite linear;
       will-change: transform;
     }
     @keyframes drift {
@@ -61,7 +62,7 @@
       font-size: 4rem;
       color: var(--gold);
       margin: 0;
-      text-shadow: 0 0 25px rgba(255,215,0,0.6);
+      text-shadow: 0 0 25px rgba(255,215,0,0.5);
       letter-spacing: 4px;
     }
     .tagline {
@@ -185,7 +186,7 @@
     #presaves li {
       margin: 15px 0;
       padding: 15px;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.03);
       border-radius: 8px;
       display: flex;
       justify-content: space-between;
@@ -197,8 +198,22 @@
       color: var(--paper);
       text-decoration: none;
       flex: 1;
+      display: flex;
+      align-items: center;
     }
-    #presaves a.clicked { opacity: 0.6; text-decoration: line-through; }
+    #presaves a.clicked {
+      background: #444;
+      opacity: 0.85;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    #presaves a.clicked::before {
+      content: "✓ ";
+      color: var(--green-check);
+      font-weight: bold;
+      margin-right: 8px;
+      font-size: 1.3em;
+    }
     #presaves button {
       background: var(--accent);
       color: white;
@@ -274,7 +289,7 @@
 
     let currentArtist = null;
 
-    // Load portraits into floating background
+    // Floating blurred portraits background
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
       const { data: artists } = await sb.from('artists').select('portrait_url');
@@ -341,11 +356,32 @@
         a.href = p.url;
         a.textContent = p.title;
         a.target = '_blank';
-        if (localStorage.getItem(p.url) === 'clicked') a.classList.add('clicked');
+
+        const isClicked = localStorage.getItem(p.url) === 'clicked';
+
+        if (isClicked) {
+          a.style.opacity = '0.7';
+          a.style.background = '#444';
+          a.style.borderRadius = '6px';
+          a.style.padding = '8px 12px';
+
+          const check = document.createElement('span');
+          check.textContent = '✓ ';
+          check.style.color = '#1DB954';
+          check.style.fontWeight = 'bold';
+          check.style.marginRight = '8px';
+          check.style.fontSize = '1.3em';
+          a.prepend(check);
+        }
+
         a.onclick = () => {
-          localStorage.setItem(p.url, 'clicked');
-          a.classList.add('clicked');
+          if (!isClicked) {
+            localStorage.setItem(p.url, 'clicked');
+            // Re-render to show checkmark immediately
+            showArtist(artist);
+          }
         };
+
         li.appendChild(a);
 
         sb.auth.getUser().then(({ data: { user } }) => {
@@ -445,7 +481,7 @@
       document.getElementById('confirm-password').value = '';
     }
 
-    // Start background collage
+    // Start background
     initBackground();
 
     // Initial load
