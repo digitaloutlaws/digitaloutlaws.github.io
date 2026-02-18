@@ -62,6 +62,7 @@
       margin: 0;
       text-shadow: 0 0 25px rgba(255,215,0,0.5);
       letter-spacing: 4px;
+      cursor: pointer;
     }
     .tagline {
       font-size: 1.4rem;
@@ -94,6 +95,50 @@
       color: var(--gold);
       margin-bottom: 20px;
       font-size: 2rem;
+    }
+    /* Top row: Spotify Player + Unclicked Presaves */
+    .top-row {
+      max-width: 1400px;
+      margin: 40px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+    #spotify-player, #unclicked-presaves {
+      flex: 1;
+      min-width: 320px;
+      background: var(--card);
+      border: 2px solid var(--gold-dark);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 20px;
+    }
+    #spotify-player iframe {
+      border-radius: 12px;
+    }
+    #unclicked-presaves {
+      height: 420px;
+      overflow-y: auto;
+    }
+    #unclicked-presaves h3 {
+      color: var(--gold);
+      margin: 0 0 15px;
+    }
+    #unclicked-list div {
+      margin: 12px 0;
+      padding: 14px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #unclicked-list div:hover {
+      background: rgba(255,215,0,0.1);
+      transform: translateX(4px);
     }
     .auth-container {
       max-width: 900px;
@@ -263,43 +308,48 @@
   <h1 style="cursor: pointer;" onclick="goHome()">The Digital Outlaws</h1>
   <div id="user-info"></div>
 
-  
-<div id="spotify-player" style="text-align:center; margin:40px auto; max-width:900px; padding:20px; background:rgba(0,0,0,0.6); border-radius:12px; border:1px solid #444;">
-  <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random artist)</h3>
-  <iframe id="spotify-iframe" 
-    style="border-radius:12px;" 
-    width="100%" 
-    height="380"  <!-- Increased from 352 to 380 for more content visibility -->
-    frameborder="0" 
-    allowfullscreen="" 
-    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-    loading="lazy"></iframe>
-</div>
-
   <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
 
-  <!-- New Welcome / Info Section – between grid and auth boxes -->
+  <!-- Top row: Spotify Player + Unclicked Presaves -->
+  <div class="top-row">
+    <!-- Spotify Player -->
+    <div id="spotify-player">
+      <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random artist)</h3>
+      <iframe id="spotify-iframe" 
+        style="border-radius:12px;" 
+        width="100%" 
+        height="380" 
+        frameborder="0" 
+        allowfullscreen="" 
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+        loading="lazy"></iframe>
+    </div>
+
+    <!-- Unclicked Presaves -->
+    <div id="unclicked-presaves">
+      <h3>Unclicked Presaves</h3>
+      <div id="unclicked-list"></div>
+    </div>
+  </div>
+
+  <!-- Welcome Info -->
   <div id="welcome-info">
     <h2>Welcome to The Digital Outlaws</h2>
     <p>
       This is your hub for presaving the latest tracks and albums from independent country & outlaw artists. 
-      Click any artist's portrait to see their current presave links. If you're an artist, log in below to manage your own presaves. 
-      All presaves are powered by Spotify — support these outlaws by hitting that button and adding them to your library!
-    </p>
-    <p style="margin-top:20px; font-style:italic; color:#ccc;">
-      "Out here in the digital wild west, we ride for the music — not the fame."
+      Click any artist's portrait to see their current presave links. If you're an artist, log in below to manage your own presaves.
     </p>
   </div>
 
+  <!-- Auth -->
   <div class="auth-container">
     <div id="login">
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button onclick="login()">Login</button>
-  <button id="logout-btn" onclick="logout()" style="display:none; background:#ff4444; color:white; margin-left:10px;">Logout</button>
-</div>
-
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <button id="logout-btn" onclick="logout()" style="display:none; background:#ff4444; color:white; margin-left:10px;">Logout</button>
+    </div>
     <div id="change-password" style="display:none;">
       <h3>Change Your Password</h3>
       <input type="password" id="new-password" placeholder="New Password" />
@@ -309,6 +359,7 @@
     </div>
   </div>
 
+  <!-- Detail View -->
   <div id="detail">
     <button onclick="back()">← Back to artists</button>
     <h2 id="artist-name"></h2>
@@ -316,7 +367,6 @@
     <div id="spotify-link"></div>
     <h3>Presaves</h3>
     <ul id="presaves"></ul>
-
     <div id="admin">
       <h3>Edit Presaves (your artist only)</h3>
       <input id="new-title" placeholder="Title (e.g. New Single)" />
@@ -333,12 +383,11 @@
 
     let currentArtist = null;
 
-    // Floating blurred portraits background
+    // Floating background
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
       const { data: artists } = await sb.from('artists').select('portrait_url');
       if (!artists || artists.length === 0) return;
-
       artists.forEach((artist, i) => {
         if (!artist.portrait_url) return;
         const img = document.createElement('img');
@@ -351,17 +400,62 @@
       });
     }
 
+    // Random Spotify Player
+    async function loadRandomSpotifyPlayer() {
+      const playerDiv = document.getElementById('spotify-player');
+      const iframe = document.getElementById('spotify-iframe');
+      try {
+        const { data: artists, error } = await sb.from('artists').select('spotify_embed_url').not('spotify_embed_url', 'is', null);
+        if (error || !artists || artists.length === 0) {
+          playerDiv.style.display = 'none';
+          return;
+        }
+        const randomEmbed = artists[Math.floor(Math.random() * artists.length)].spotify_embed_url;
+        iframe.src = randomEmbed;
+        playerDiv.style.display = 'block';
+      } catch (err) {
+        console.error('Spotify player error:', err);
+        playerDiv.style.display = 'none';
+      }
+    }
+
+    // Unclicked Presaves Scrolling List
+    async function loadUnclickedPresaves() {
+      const container = document.getElementById('unclicked-list');
+      container.innerHTML = '<p style="color:#aaa;">Loading...</p>';
+      try {
+        const { data: presaves } = await sb.from('presaves').select('id, title, url, artist_id');
+        const unclicked = presaves.filter(p => localStorage.getItem(p.url) !== 'clicked');
+        container.innerHTML = '';
+        if (unclicked.length === 0) {
+          container.innerHTML = '<p style="color:#aaa; text-align:center;">No new presaves to check right now!</p>';
+          return;
+        }
+        unclicked.forEach(p => {
+          const div = document.createElement('div');
+          div.innerHTML = `<strong>${p.title}</strong>`;
+          div.style.cursor = 'pointer';
+          div.onclick = () => {
+            window.open(p.url, '_blank');
+            localStorage.setItem(p.url, 'clicked');
+            loadUnclickedPresaves(); // refresh list
+          };
+          container.appendChild(div);
+        });
+      } catch (e) {
+        container.innerHTML = '<p style="color:#ff4444;">Error loading list</p>';
+      }
+    }
+
     async function loadArtists() {
       document.getElementById('loading').style.display = 'block';
       document.getElementById('artists-grid').style.display = 'none';
-
       const { data: artists, error } = await sb.from('artists').select('*').order('name');
       if (error) {
         console.error('Fetch error:', error);
         document.getElementById('loading').textContent = 'Error loading – check console';
         return;
       }
-
       const grid = document.getElementById('artists-grid');
       grid.innerHTML = artists.length === 0 ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' : '';
       artists.forEach(artist => {
@@ -374,7 +468,6 @@
         card.onclick = () => showArtist(artist);
         grid.appendChild(card);
       });
-
       document.getElementById('loading').style.display = 'none';
       grid.style.display = 'grid';
       document.getElementById('detail').style.display = 'none';
@@ -386,11 +479,9 @@
       document.getElementById('artists-grid').style.display = 'none';
       document.getElementById('artist-name').textContent = artist.name;
       document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name);
-
       document.getElementById('spotify-link').innerHTML = artist.spotify_url
         ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
         : '';
-
       const { data: presaves } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
       const list = document.getElementById('presaves');
       list.innerHTML = presaves.length === 0 ? '<li>No presaves yet.</li>' : '';
@@ -400,15 +491,12 @@
         a.href = p.url;
         a.textContent = p.title;
         a.target = '_blank';
-
         const isClicked = localStorage.getItem(p.url) === 'clicked';
-
         if (isClicked) {
           a.style.opacity = '0.7';
           a.style.background = '#444';
           a.style.borderRadius = '6px';
           a.style.padding = '8px 12px';
-
           const check = document.createElement('span');
           check.textContent = '✓ ';
           check.style.color = '#1DB954';
@@ -417,16 +505,13 @@
           check.style.fontSize = '1.3em';
           a.prepend(check);
         }
-
         a.onclick = () => {
           if (!isClicked) {
             localStorage.setItem(p.url, 'clicked');
-            showArtist(artist); // Re-render to show tick immediately
+            showArtist(artist);
           }
         };
-
         li.appendChild(a);
-
         sb.auth.getUser().then(({ data: { user } }) => {
           if (user && user.id === artist.owner) {
             const delBtn = document.createElement('button');
@@ -440,10 +525,8 @@
             li.appendChild(delBtn);
           }
         });
-
         list.appendChild(li);
       });
-
       const admin = document.getElementById('admin');
       const { data: { user } } = await sb.auth.getUser();
       admin.style.display = (user && user.id === artist.owner) ? 'block' : 'none';
@@ -490,6 +573,7 @@
       document.getElementById('change-password').style.display = user ? 'block' : 'none';
       document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
       loadArtists();
+      loadUnclickedPresaves();   // Refresh unclicked list
     }
 
     async function changePassword() {
@@ -498,18 +582,9 @@
       const msg = document.getElementById('password-message');
       msg.textContent = '';
       msg.style.color = '#ff6b6b';
-      if (!newPass || !confirmPass) {
-        msg.textContent = 'Please fill both fields';
-        return;
-      }
-      if (newPass !== confirmPass) {
-        msg.textContent = 'Passwords do not match';
-        return;
-      }
-      if (newPass.length < 8) {
-        msg.textContent = 'Password must be at least 8 characters';
-        return;
-      }
+      if (!newPass || !confirmPass) return msg.textContent = 'Please fill both fields';
+      if (newPass !== confirmPass) return msg.textContent = 'Passwords do not match';
+      if (newPass.length < 8) return msg.textContent = 'Password must be at least 8 characters';
       msg.textContent = 'Updating...';
       msg.style.color = '#fff';
       const { error } = await sb.auth.updateUser({ password: newPass });
@@ -526,61 +601,15 @@
     }
 
     function goHome() {
-  document.getElementById('detail').style.display = 'none';
-  document.getElementById('artists-grid').style.display = 'grid';
-  // Optional: scroll to top smoothly
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-    // Start background
-    initBackground();
-
-    // Load random Spotify embed on page load
-async function loadRandomSpotifyPlayer() {
-  const playerDiv = document.getElementById('spotify-player');
-  const iframe = document.getElementById('spotify-iframe');
-
-  try {
-    // Get all artists with a valid embed URL
-    const { data: artists, error } = await sb
-      .from('artists')
-      .select('spotify_embed_url')
-      .not('spotify_embed_url', 'is', null);
-
-    if (error || !artists || artists.length === 0) {
-      console.log('No embed URLs found');
-      playerDiv.style.display = 'none';
-      return;
+      document.getElementById('detail').style.display = 'none';
+      document.getElementById('artists-grid').style.display = 'grid';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Pick a random one
-    const randomEmbed = artists[Math.floor(Math.random() * artists.length)].spotify_embed_url;
-
-    // Set iframe src
-    iframe.src = randomEmbed;
-    playerDiv.style.display = 'block';
-  } catch (err) {
-    console.error('Spotify player error:', err);
-    playerDiv.style.display = 'none';
-  }
-}
-
-// Call it after loading artists (or on page load)
-loadRandomSpotifyPlayer();
-
-// Optional: Rotate every 30 minutes (1800000 ms = 30 min)
-setInterval(loadRandomSpotifyPlayer, 1800000);
-
-    // Initial load
+    // Start everything
+    initBackground();
+    loadRandomSpotifyPlayer();
     updateUserInfo();
-
-    // Start background
-initBackground();
-
-// Load random player
-loadRandomSpotifyPlayer();
-
-// Initial load
-updateUserInfo();
   </script>
 </body>
 </html>
