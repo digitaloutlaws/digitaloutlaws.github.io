@@ -150,7 +150,7 @@
     button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px var(--shadow); }
     #login button, #change-password button, #register-form button { background: var(--gold); color: #000; }
     #logout { background: var(--accent); color: white; }
-    #password-message, #register-message, #profile-message { margin-top: 12px; font-size: 1rem; min-height: 1.4em; text-align: center; }
+    #password-message, #register-message { margin-top: 12px; font-size: 1rem; min-height: 1.4em; text-align: center; }
     #loading { text-align: center; font-size: 2rem; color: var(--gold); margin: 80px 0; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
     .artist-card { text-align: center; cursor: pointer; transition: all 0.3s; background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px var(--shadow); }
@@ -159,7 +159,6 @@
     .artist-card h3 { margin: 12px 0; color: var(--text); }
     #detail { max-width: 700px; margin: 40px auto; padding: 30px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 40px var(--shadow); display: none; }
     #detail h2 { color: var(--gold); }
-    #edit-profile { margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -206,7 +205,7 @@
     </div>
   </div>
 
-  <!-- Registration Form -->
+  <!-- NEW: Artist Registration Form -->
   <div id="register-form" style="max-width:700px; margin:60px auto; padding:35px; background:var(--card); border:2px solid var(--gold-dark); border-radius:12px; box-shadow:0 10px 30px var(--shadow);">
     <h3 style="color:var(--gold); text-align:center; margin-bottom:10px;">Become an Outlaw</h3>
     <p style="text-align:center; color:#aaa; margin-bottom:25px;">Submit your profile for review. Only approved artists appear on the site.</p>
@@ -235,16 +234,6 @@
       <input id="new-title" placeholder="Title (e.g. New Single)" />
       <input id="new-url" placeholder="Presave URL" />
       <button onclick="addPresave()">Add Presave</button>
-
-      <!-- NEW: Artist can edit their own profile (name, Spotify, portrait) -->
-      <div id="edit-profile" style="margin-top:30px; padding:20px; background:rgba(0,0,0,0.5); border:1px solid var(--gold); border-radius:8px;">
-        <h4 style="color:var(--gold); margin:0 0 15px;">Edit Your Profile</h4>
-        <input id="edit-name" placeholder="Update Artist Name" />
-        <input id="edit-spotify" placeholder="Update Spotify URL" />
-        <input id="edit-portrait" placeholder="Update Portrait URL (direct link)" />
-        <button onclick="saveProfile()" style="margin-top:15px; background:var(--gold); color:#000;">Save Profile Changes</button>
-        <p id="profile-message" style="margin-top:10px;"></p>
-      </div>
     </div>
   </div>
 
@@ -260,7 +249,6 @@
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
       const { data: artists } = await sb.from('artists').select('portrait_url');
-      collage.innerHTML = ''; // Clear old images
       if (!artists || artists.length === 0) return;
       artists.forEach((artist, i) => {
         if (!artist.portrait_url) return;
@@ -321,14 +309,11 @@
       }
     }
 
-    // ================== LOAD ARTISTS (only approved) ==================
+    // ================== YOUR ORIGINAL FUNCTIONS (unchanged) ==================
     async function loadArtists() {
       document.getElementById('loading').style.display = 'block';
       document.getElementById('artists-grid').style.display = 'none';
-      const { data: artists, error } = await sb.from('artists')
-        .select('*')
-        .eq('approved', true)  // Only show approved artists
-        .order('name');
+      const { data: artists, error } = await sb.from('artists').select('*').order('name');
       if (error) {
         console.error('Fetch error:', error);
         document.getElementById('loading').textContent = 'Error loading – check console';
@@ -351,7 +336,6 @@
       document.getElementById('detail').style.display = 'none';
     }
 
-    // ================== SHOW ARTIST DETAIL ==================
     async function showArtist(artist) {
       currentArtist = artist;
       document.getElementById('detail').style.display = 'block';
@@ -406,58 +390,11 @@
         });
         list.appendChild(li);
       });
-
       const admin = document.getElementById('admin');
-      const editProfile = document.getElementById('edit-profile');
       const { data: { user } } = await sb.auth.getUser();
-      const isOwner = user && user.id === artist.owner;
-      admin.style.display = isOwner ? 'block' : 'none';
-      editProfile.style.display = isOwner ? 'block' : 'none';
-
-      // Pre-fill edit fields
-      if (isOwner) {
-        document.getElementById('edit-name').value = artist.name || '';
-        document.getElementById('edit-spotify').value = artist.spotify_url || '';
-        document.getElementById('edit-portrait').value = artist.portrait_url || '';
-      }
+      admin.style.display = (user && user.id === artist.owner) ? 'block' : 'none';
     }
 
-    // ================== SAVE PROFILE CHANGES (NEW) ==================
-    async function saveProfile() {
-      const name = document.getElementById('edit-name').value.trim();
-      const spotify = document.getElementById('edit-spotify').value.trim();
-      const portrait = document.getElementById('edit-portrait').value.trim();
-      const msg = document.getElementById('profile-message');
-
-      if (!name) {
-        msg.textContent = 'Name is required';
-        msg.style.color = '#ff4444';
-        return;
-      }
-
-      msg.textContent = 'Saving...';
-      msg.style.color = '#ffd700';
-
-      const { error } = await sb.from('artists').update({
-        name: name,
-        spotify_url: spotify || null,
-        portrait_url: portrait || null
-      }).eq('id', currentArtist.id);
-
-      if (error) {
-        msg.textContent = 'Error: ' + error.message;
-        msg.style.color = '#ff4444';
-      } else {
-        msg.textContent = '✅ Profile updated! Refresh to see changes in background.';
-        msg.style.color = '#1DB954';
-        // Refresh background collage
-        initBackground();
-        // Refresh current artist view
-        showArtist(currentArtist);
-      }
-    }
-
-    // ================== OTHER FUNCTIONS (unchanged) ==================
     async function addPresave() {
       const title = document.getElementById('new-title').value.trim();
       const url = document.getElementById('new-url').value.trim();
@@ -532,7 +469,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ================== REGISTRATION FUNCTION ==================
+    // ================== NEW REGISTRATION FUNCTION ==================
     async function submitRegistration() {
       const name = document.getElementById('reg-name').value.trim();
       const username = document.getElementById('reg-username').value.trim().toLowerCase().replace(/\s+/g, '');
@@ -576,6 +513,8 @@
       } else {
         msg.innerHTML = '✅ Profile submitted successfully!<br>I will review it and send you login details shortly.';
         msg.style.color = '#1DB954';
+
+        // Clear form
         document.getElementById('reg-name').value = '';
         document.getElementById('reg-username').value = '';
         document.getElementById('reg-spotify').value = '';
