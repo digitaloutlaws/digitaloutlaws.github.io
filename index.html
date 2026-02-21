@@ -297,7 +297,27 @@
     // ================== BACKGROUND ==================
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
-      const { data: artists } = await sb.from('artists').select('portrait_url');
+     async function loadArtists() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('artists-grid').style.display = 'none';
+
+  const { data: artists, error } = await sb.from('artists').select('*');
+  //               ↑↑↑ removed .order('name')
+
+  if (error) {
+    console.error('Fetch error:', error);
+    document.getElementById('loading').textContent = 'Error loading – check console';
+    return;
+  }
+
+  // Shuffle the array in place (Fisher-Yates / modern shuffle)
+  artists.sort(() => Math.random() - 0.5);
+
+  const grid = document.getElementById('artists-grid');
+  grid.innerHTML = artists.length === 0 ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' : '';
+
+  artists.forEach(artist => {
+    // ... rest of the function stays exactly the same
       if (!artists || artists.length === 0) return;
       artists.forEach((artist, i) => {
         if (!artist.portrait_url) return;
