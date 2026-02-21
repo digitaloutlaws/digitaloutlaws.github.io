@@ -159,10 +159,6 @@
     .artist-card h3 { margin: 12px 0; color: var(--text); }
     #detail { max-width: 700px; margin: 40px auto; padding: 30px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 40px var(--shadow); display: none; }
     #detail h2 { color: var(--gold); }
-
-    /* ────────────────────────────────────────────────
-       DistroKid Referral Button Styles
-    ──────────────────────────────────────────────── */
     .distro-section {
       max-width: 800px;
       margin: 60px auto;
@@ -208,7 +204,6 @@
   <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
 
-  <!-- Top row: Spotify Player + Unclicked Presaves -->
   <div class="top-row">
     <div id="spotify-player">
       <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random artist)</h3>
@@ -220,13 +215,11 @@
     </div>
   </div>
 
-  <!-- Welcome -->
   <div id="welcome-info">
     <h2>Welcome to The Digital Outlaws</h2>
     <p>This is your hub for presaving the latest tracks and albums from independent country & outlaw artists.</p>
   </div>
 
-  <!-- Auth -->
   <div class="auth-container">
     <div id="login">
       <input type="email" id="email" placeholder="Email" />
@@ -243,35 +236,28 @@
     </div>
   </div>
 
-  <!-- Artist Registration Form -->
   <div id="register-form" style="max-width:700px; margin:60px auto; padding:35px; background:var(--card); border:2px solid var(--gold-dark); border-radius:12px; box-shadow:0 10px 30px var(--shadow);">
     <h3 style="color:var(--gold); text-align:center; margin-bottom:10px;">Become an Outlaw</h3>
     <p style="text-align:center; color:#aaa; margin-bottom:25px;">Submit your profile for review. Only approved artists appear on the site.</p>
-   
     <input type="text" id="reg-name" placeholder="Full Artist Name" />
     <input type="text" id="reg-username" placeholder="Username (lowercase, no spaces)" />
     <input type="text" id="reg-spotify" placeholder="Spotify Artist URL" />
     <input type="text" id="reg-portrait" placeholder="Portrait Image URL (direct link)" />
     <input type="password" id="reg-password" placeholder="Choose Password" />
     <input type="password" id="reg-confirm" placeholder="Confirm Password" />
-   
     <button onclick="submitRegistration()" style="width:100%; margin-top:20px; padding:16px;">Submit Profile for Review</button>
     <p id="register-message" style="margin-top:20px; text-align:center; font-weight:bold;"></p>
   </div>
 
-  <!-- ────────────────────────────────────────────────
-       NEW: DistroKid Referral Button Section
-  ──────────────────────────────────────────────── -->
   <div class="distro-section">
     <h3>Distribute Your Music Worldwide</h3>
     <p>Use DistroKid to get your music on Spotify, Apple Music, TikTok, YouTube & more.<br>Get <strong>7% off your first year</strong> and help support The Digital Outlaws — we earn a small commission when you sign up through this link (at no extra cost to you).</p>
     <a href="https://distrokid.com/vip/seven/10480046" target="_blank" rel="noopener noreferrer" class="distro-button">
-      <img src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/portraits/distro.jpg" 
+      <img src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/portraits/distro.jpg"
            alt="Sign up for DistroKid - 7% off your first year">
     </a>
   </div>
 
-  <!-- Detail View -->
   <div id="detail">
     <button onclick="back()">← Back to artists</button>
     <h2 id="artist-name"></h2>
@@ -292,33 +278,15 @@
       'https://zjtytzhrxgvahwtgpzgc.supabase.co',
       'sb_publishable_GAzdtitWzc6bQ7thArIJKA_IbGwMuQJ'
     );
+
     let currentArtist = null;
 
-    // ================== BACKGROUND ==================
+    // ================== BACKGROUND COLLAGE ==================
     async function initBackground() {
       const collage = document.getElementById('bg-collage');
-     async function loadArtists() {
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('artists-grid').style.display = 'none';
-
-  const { data: artists, error } = await sb.from('artists').select('*');
-  //               ↑↑↑ removed .order('name')
-
-  if (error) {
-    console.error('Fetch error:', error);
-    document.getElementById('loading').textContent = 'Error loading – check console';
-    return;
-  }
-
-  // Shuffle the array in place (Fisher-Yates / modern shuffle)
-  artists.sort(() => Math.random() - 0.5);
-
-  const grid = document.getElementById('artists-grid');
-  grid.innerHTML = artists.length === 0 ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' : '';
-
-  artists.forEach(artist => {
-    // ... rest of the function stays exactly the same
+      const { data: artists } = await sb.from('artists').select('portrait_url');
       if (!artists || artists.length === 0) return;
+
       artists.forEach((artist, i) => {
         if (!artist.portrait_url) return;
         const img = document.createElement('img');
@@ -378,18 +346,27 @@
       }
     }
 
-    // ================== YOUR ORIGINAL FUNCTIONS (unchanged) ==================
+    // ================== LOAD ARTISTS (random order) ==================
     async function loadArtists() {
       document.getElementById('loading').style.display = 'block';
       document.getElementById('artists-grid').style.display = 'none';
-      const { data: artists, error } = await sb.from('artists').select('*').order('name');
+
+      const { data: artists, error } = await sb.from('artists').select('*');
+
       if (error) {
-        console.error('Fetch error:', error);
-        document.getElementById('loading').textContent = 'Error loading – check console';
+        console.error('Fetch artists error:', error);
+        document.getElementById('loading').textContent = 'Error loading artists – check console';
         return;
       }
+
+      // Random shuffle (different every page load)
+      artists.sort(() => Math.random() - 0.5);
+
       const grid = document.getElementById('artists-grid');
-      grid.innerHTML = artists.length === 0 ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' : '';
+      grid.innerHTML = artists.length === 0 
+        ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' 
+        : '';
+
       artists.forEach(artist => {
         const card = document.createElement('div');
         card.className = 'artist-card';
@@ -400,6 +377,7 @@
         card.onclick = () => showArtist(artist);
         grid.appendChild(card);
       });
+
       document.getElementById('loading').style.display = 'none';
       grid.style.display = 'grid';
       document.getElementById('detail').style.display = 'none';
@@ -414,15 +392,18 @@
       document.getElementById('spotify-link').innerHTML = artist.spotify_url
         ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
         : '';
+
       const { data: presaves } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
       const list = document.getElementById('presaves');
       list.innerHTML = presaves.length === 0 ? '<li>No presaves yet.</li>' : '';
+
       presaves.forEach(p => {
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = p.url;
         a.textContent = p.title;
         a.target = '_blank';
+
         const isClicked = localStorage.getItem(p.url) === 'clicked';
         if (isClicked) {
           a.style.opacity = '0.7';
@@ -437,13 +418,16 @@
           check.style.fontSize = '1.3em';
           a.prepend(check);
         }
+
         a.onclick = () => {
           if (!isClicked) {
             localStorage.setItem(p.url, 'clicked');
             showArtist(artist);
           }
         };
+
         li.appendChild(a);
+
         sb.auth.getUser().then(({ data: { user } }) => {
           if (user && user.id === artist.owner) {
             const delBtn = document.createElement('button');
@@ -457,8 +441,10 @@
             li.appendChild(delBtn);
           }
         });
+
         list.appendChild(li);
       });
+
       const admin = document.getElementById('admin');
       const { data: { user } } = await sb.auth.getUser();
       admin.style.display = (user && user.id === artist.owner) ? 'block' : 'none';
@@ -468,10 +454,12 @@
       const title = document.getElementById('new-title').value.trim();
       const url = document.getElementById('new-url').value.trim();
       if (!title || !url) return alert('Fill both fields');
+
       const { data: { user } } = await sb.auth.getUser();
       if (!user || user.id !== currentArtist.owner) {
         return alert("You must be the owner to add presaves.");
       }
+
       const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
       if (error) alert('Error: ' + error.message);
       else {
@@ -514,11 +502,14 @@
       const msg = document.getElementById('password-message');
       msg.textContent = '';
       msg.style.color = '#ff6b6b';
+
       if (!newPass || !confirmPass) return msg.textContent = 'Please fill both fields';
       if (newPass !== confirmPass) return msg.textContent = 'Passwords do not match';
       if (newPass.length < 8) return msg.textContent = 'Password must be at least 8 characters';
+
       msg.textContent = 'Updating...';
       msg.style.color = '#fff';
+
       const { error } = await sb.auth.updateUser({ password: newPass });
       if (error) {
         msg.textContent = 'Error: ' + error.message;
@@ -528,6 +519,7 @@
         await sb.auth.signOut();
         updateUserInfo();
       }
+
       document.getElementById('new-password').value = '';
       document.getElementById('confirm-password').value = '';
     }
@@ -546,6 +538,7 @@
       const pass = document.getElementById('reg-password').value.trim();
       const confirm = document.getElementById('reg-confirm').value.trim();
       const msg = document.getElementById('register-message');
+
       if (!name || !username || !spotify || !portrait || !pass || !confirm) {
         msg.innerHTML = 'Please fill all fields';
         msg.style.color = '#ff4444';
@@ -561,8 +554,10 @@
         msg.style.color = '#ff4444';
         return;
       }
+
       msg.innerHTML = 'Submitting for review...';
       msg.style.color = '#ffd700';
+
       const { error } = await sb.from('artist_registrations').insert({
         name: name,
         username: username,
@@ -571,13 +566,13 @@
         password: pass,
         status: 'pending'
       });
+
       if (error) {
         msg.innerHTML = 'Error: ' + error.message;
         msg.style.color = '#ff4444';
       } else {
         msg.innerHTML = '✅ Profile submitted successfully!<br>I will review it and send you login details shortly.';
         msg.style.color = '#1DB954';
-        // Clear form
         document.getElementById('reg-name').value = '';
         document.getElementById('reg-username').value = '';
         document.getElementById('reg-spotify').value = '';
