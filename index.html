@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,13 +11,18 @@
       --bg: #000000;
       --dark: #0f0f0f;
       --card: rgba(15,15,15,0.85);
-      --gold: #ffd700;
-      --gold-dark: #d4af37;
+
+      /* UPDATED THEME (matches logo: steel / blue-grey, not bright vegas gold) */
+      --primary: #5f7d95;        /* steel blue accent */
+      --primary-dark: #3e5465;   /* darker border shade */
+      --primary-glow: #7fa6c3;   /* glow/highlight */
       --text: #f0f0f0;
+
       --accent: #ff4444;
       --shadow: rgba(0,0,0,0.9);
       --green-check: #1DB954;
     }
+
     body {
       font-family: Arial, sans-serif;
       background: var(--bg);
@@ -27,6 +33,7 @@
       position: relative;
       overflow-x: hidden;
     }
+
     .bg-collage {
       position: fixed;
       inset: 0;
@@ -49,33 +56,40 @@
       0% { transform: translate(-60%, -60%) rotate(0deg); }
       100% { transform: translate(160vw, 160vh) rotate(360deg); }
     }
+
     header {
       text-align: center;
       padding: 60px 20px 30px;
       background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.8));
-      border-bottom: 4px solid var(--gold);
+      border-bottom: 4px solid var(--primary);
     }
+
     h1 {
       font-size: 4rem;
-      color: var(--gold);
+      color: var(--primary);
       margin: 0;
-      text-shadow: 0 0 25px rgba(255,215,0,0.5);
       letter-spacing: 4px;
       cursor: pointer;
+      text-shadow:
+        0 0 8px rgba(127,166,195,0.55),
+        0 0 18px rgba(95,125,149,0.45);
     }
+
     .tagline {
       font-size: 1.4rem;
       color: #ccc;
       margin: 10px 0 0;
       font-style: italic;
     }
+
     #user-info {
       text-align: center;
-      color: var(--gold);
+      color: var(--primary);
       font-size: 1.3rem;
       margin: 15px 0;
       font-weight: bold;
     }
+
     #welcome-info {
       max-width: 900px;
       margin: 40px auto;
@@ -86,8 +100,9 @@
       text-align: center;
       font-size: 1.2rem;
       line-height: 1.6;
-      border: 1px solid var(--gold-dark);
+      border: 1px solid var(--primary-dark);
     }
+
     .top-row {
       max-width: 1400px;
       margin: 40px auto;
@@ -97,19 +112,22 @@
       justify-content: center;
       padding: 0 20px;
     }
+
     #spotify-player, #unclicked-presaves {
       flex: 1;
       min-width: 320px;
       background: var(--card);
-      border: 2px solid var(--gold-dark);
+      border: 2px solid var(--primary-dark);
       border-radius: 12px;
       box-shadow: 0 10px 30px var(--shadow);
       padding: 20px;
     }
+
     #unclicked-presaves {
       height: 420px;
       overflow-y: auto;
     }
+
     .auth-container {
       max-width: 900px;
       margin: 40px auto;
@@ -119,15 +137,17 @@
       justify-content: center;
       padding: 0 20px;
     }
+
     #login, #change-password, #register-form {
       flex: 1;
       min-width: 320px;
       padding: 30px;
       background: var(--card);
-      border: 2px solid var(--gold-dark);
+      border: 2px solid var(--primary-dark);
       border-radius: 12px;
       box-shadow: 0 10px 30px var(--shadow);
     }
+
     input {
       width: 100%;
       padding: 14px;
@@ -138,6 +158,7 @@
       color: white;
       font-size: 1.1rem;
     }
+
     button {
       padding: 14px 28px;
       margin: 10px;
@@ -147,74 +168,144 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px var(--shadow); }
-    #login button, #change-password button, #register-form button { background: var(--gold); color: #000; }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px var(--shadow);
+    }
+
+    /* UPDATED button theme */
+    #login button, #change-password button, #register-form button {
+      background: var(--primary);
+      color: #000;
+    }
+
     #logout { background: var(--accent); color: white; }
-    #password-message, #register-message { margin-top: 12px; font-size: 1rem; min-height: 1.4em; text-align: center; }
-    #loading { text-align: center; font-size: 2rem; color: var(--gold); margin: 80px 0; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
-    .artist-card { text-align: center; cursor: pointer; transition: all 0.3s; background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px var(--shadow); }
-    .artist-card:hover { transform: scale(1.08); box-shadow: 0 15px 40px rgba(255,215,0,0.3); }
-    .artist-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-bottom: 4px solid var(--gold); }
-    .artist-card h3 { margin: 12px 0; color: var(--text); }
-    #detail { max-width: 700px; margin: 40px auto; padding: 30px; background: var(--card); border-radius: 16px; box-shadow: 0 10px 40px var(--shadow); display: none; }
-    #detail h2 { color: var(--gold); }
+
+    #password-message, #register-message {
+      margin-top: 12px;
+      font-size: 1rem;
+      min-height: 1.4em;
+      text-align: center;
+    }
+
+    #loading {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--primary);
+      margin: 80px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+      padding: 40px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .artist-card {
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+
+    .artist-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 40px rgba(95,125,149,0.35);
+    }
+
+    .artist-card img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-bottom: 4px solid var(--primary);
+    }
+
+    .artist-card h3 {
+      margin: 12px 0;
+      color: var(--text);
+    }
+
+    #detail {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 30px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px var(--shadow);
+      display: none;
+      border: 1px solid var(--primary-dark);
+    }
+
+    #detail h2 { color: var(--primary); }
+
     .distro-section {
       max-width: 800px;
       margin: 60px auto;
       padding: 40px 30px;
       background: var(--card);
-      border: 2px solid var(--gold-dark);
+      border: 2px solid var(--primary-dark);
       border-radius: 16px;
       box-shadow: 0 10px 30px var(--shadow);
       text-align: center;
     }
+
     .distro-section h3 {
-      color: var(--gold);
+      color: var(--primary);
       margin: 0 0 15px;
       font-size: 1.8rem;
-      text-shadow: 0 0 10px rgba(255,215,0,0.4);
+      text-shadow: 0 0 10px rgba(127,166,195,0.35);
     }
+
     .distro-section p {
       color: #ccc;
       font-size: 1.15rem;
       margin: 0 0 25px;
       line-height: 1.5;
     }
+
     .distro-button {
       display: inline-block;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .distro-button:hover {
       transform: scale(1.05);
-      box-shadow: 0 15px 40px rgba(255,215,0,0.35);
+      box-shadow: 0 15px 40px rgba(95,125,149,0.35);
     }
     .distro-button img {
       max-width: 100%;
       height: auto;
       border-radius: 12px;
-      border: 1px solid var(--gold-dark);
+      border: 1px solid var(--primary-dark);
     }
   </style>
 </head>
+
 <body>
   <div class="bg-collage" id="bg-collage"></div>
- <div style="text-align: center; padding: 40px 20px 20px;">
-  <img 
-    src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/siteArt/title2.png"
-    alt="The Digital Outlaws"
-    id="logo"
-    style="max-width: 90%; height: auto; cursor: pointer;"
-    onclick="goHome()"
-  >
-</div>
-<div id="user-info"></div>
+
+  <div style="text-align: center; padding: 40px 20px 20px;">
+    <img 
+      src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/siteArt/title2.png"
+      alt="The Digital Outlaws"
+      id="logo"
+      style="max-width: 90%; height: auto; cursor: pointer;"
+      onclick="goHome()"
+    >
+  </div>
+
+  <div id="user-info"></div>
   <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
 
   <div class="top-row">
     <div id="spotify-player">
-      <h3 style="color:#ffd700; margin:0 0 15px;">Now Playing (random artist)</h3>
+      <h3 style="color:var(--primary); margin:0 0 15px;">Now Playing (random artist)</h3>
       <iframe id="spotify-iframe" style="border-radius:12px;" width="100%" height="380" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
     <div id="unclicked-presaves">
@@ -235,6 +326,7 @@
       <button onclick="login()">Login</button>
       <button id="logout-btn" onclick="logout()" style="display:none; background:#ff4444; color:white; margin-left:10px;">Logout</button>
     </div>
+
     <div id="change-password" style="display:none;">
       <h3>Change Your Password</h3>
       <input type="password" id="new-password" placeholder="New Password" />
@@ -244,8 +336,8 @@
     </div>
   </div>
 
-  <div id="register-form" style="max-width:700px; margin:60px auto; padding:35px; background:var(--card); border:2px solid var(--gold-dark); border-radius:12px; box-shadow:0 10px 30px var(--shadow);">
-    <h3 style="color:var(--gold); text-align:center; margin-bottom:10px;">Become an Outlaw</h3>
+  <div id="register-form" style="max-width:700px; margin:60px auto; padding:35px; background:var(--card); border:2px solid var(--primary-dark); border-radius:12px; box-shadow:0 10px 30px var(--shadow);">
+    <h3 style="color:var(--primary); text-align:center; margin-bottom:10px;">Become an Outlaw</h3>
     <p style="text-align:center; color:#aaa; margin-bottom:25px;">Submit your profile for review. Only approved artists appear on the site.</p>
     <input type="text" id="reg-name" placeholder="Full Artist Name" />
     <input type="text" id="reg-username" placeholder="Username (lowercase, no spaces)" />
@@ -371,8 +463,8 @@
       artists.sort(() => Math.random() - 0.5);
 
       const grid = document.getElementById('artists-grid');
-      grid.innerHTML = artists.length === 0 
-        ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>' 
+      grid.innerHTML = artists.length === 0
+        ? '<p style="text-align:center; color:#aaa;">No artists added yet.</p>'
         : '';
 
       artists.forEach(artist => {
@@ -523,7 +615,7 @@
         msg.textContent = 'Error: ' + error.message;
       } else {
         msg.textContent = 'Password updated successfully! Logging out — please log in again with the new password.';
-        msg.style.color = '#ffd700';
+        msg.style.color = 'var(--primary)';
         await sb.auth.signOut();
         updateUserInfo();
       }
@@ -564,7 +656,7 @@
       }
 
       msg.innerHTML = 'Submitting for review...';
-      msg.style.color = '#ffd700';
+      msg.style.color = 'var(--primary)';
 
       const { error } = await sb.from('artist_registrations').insert({
         name: name,
@@ -597,3 +689,4 @@
   </script>
 </body>
 </html>
+```
