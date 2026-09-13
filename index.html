@@ -461,13 +461,86 @@
         width: 100%;
       }
     }
+    /* Midnight Chrome: responsive editorial music discovery theme. */
+    * { box-sizing: border-box; }
+    :root { --primary:#9bbbd1; --primary-dark:#304451; --primary-glow:#c4eaff; --card:linear-gradient(145deg,#151d25,#090d12); --text:#edf3f7; }
+    html { scroll-behavior:smooth; scroll-padding-top:95px; }
+    body { background:#070a0e; font-family:Arial,Helvetica,sans-serif; }
+    body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:-1; background:radial-gradient(ellipse at 75% 0%,#25435955,transparent 55%); }
+    .bg-collage { opacity:.08; }
+    .site-nav { position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:17px max(24px,calc((100vw - 1240px)/2)); background:#080c12ee; backdrop-filter:blur(18px); border-bottom:1px solid #334958; }
+    .wordmark { color:#e9f5fc; text-decoration:none; font-size:15px; font-weight:900; letter-spacing:3px; white-space:nowrap; }
+    .wordmark span { color:#8ab5d3; }
+    .nav-links { display:flex; align-items:center; gap:22px; }
+    .nav-links button { margin:0; padding:9px 0; background:none; color:#b6c5cf; font-size:12px; letter-spacing:1px; }
+    .nav-links button:last-child { border:1px solid #49687f; padding:11px 17px; border-radius:5px; color:#e5f4ff; }
+    .brand-banner { display:none; }
+    .hero { max-width:1240px; margin:32px auto 0; min-height:480px; display:grid; grid-template-columns:1.15fr 1fr; position:relative; overflow:hidden; border:1px solid #334957; border-radius:16px; background:radial-gradient(ellipse at 80% 30%,#46698155,transparent 60%),linear-gradient(120deg,#121c25,#07090d); }
+    .hero::after { content:''; position:absolute; width:600px; height:600px; border:1px solid #8dc7ef22; border-radius:50%; right:-210px; top:-140px; box-shadow:0 0 0 60px #8dc7ef08,0 0 0 120px #8dc7ef05; pointer-events:none; }
+    .hero-copy { padding:60px 0 55px 48px; z-index:1; }
+    .eyebrow { color:#a5c6dc; font-size:10px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
+    .hero h1 { cursor:default; font-size:clamp(48px,6vw,83px); line-height:.98; letter-spacing:-4px; margin:25px 0; text-shadow:none; color:#f4f8fb; }
+    .hero h1 span { background:linear-gradient(100deg,#f2faff,#81a9c3 55%,#d7eaf7); background-clip:text; -webkit-background-clip:text; color:transparent; }
+    .hero p { max-width:400px; color:#a0b1be; font-size:15px; line-height:1.8; }
+    .hero-actions { display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; }
+    .hero-actions button { margin:0; }
+    button { background:linear-gradient(135deg,#c6dfef,#7d9eb7); color:#081018; border:1px solid #b5d2e544; border-radius:6px; }
+    button:disabled { opacity:.5; cursor:wait; transform:none; }
+    button:focus-visible,a:focus-visible,input:focus-visible { outline:2px solid #c0e9ff; outline-offset:4px; }
+    .hero-actions .secondary { background:#121d27; color:#d9e8f1; }
+    .hero-art { display:flex; justify-content:center; align-items:center; padding:30px; position:relative; z-index:1; }
+    .hero-art img { width:100%; max-width:460px; filter:drop-shadow(0 18px 28px #000) drop-shadow(0 0 25px #8abde433); }
+    .hero-note { margin-top:30px; font-size:10px; color:#698496; letter-spacing:2px; }
+    .section-heading { max-width:1240px; margin:55px auto 0; display:flex; justify-content:space-between; align-items:end; gap:20px; }
+    .section-heading h2 { margin:10px 0 0; font-size:30px; letter-spacing:-1px; }
+    .section-heading input { width:260px; margin:0; font-size:13px; }
+    .grid { max-width:1280px; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:20px; padding-top:25px; }
+    .artist-card { border:1px solid #2a3a47; border-radius:10px; position:relative; text-align:left; padding:0; color:var(--text); }
+    .artist-card:hover { transform:translateY(-6px); border-color:#7fabc9; box-shadow:0 14px 40px #5a92b52b; }
+    .artist-card img { display:block; border-bottom:1px solid #3a5364; transition:filter .3s; }
+    .artist-card h3 { padding:4px 18px 0; font-size:17px; }
+    .artist-card .card-caption { display:flex; justify-content:space-between; padding:0 18px 18px; color:#8fa9ba; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; }
+    .top-row { max-width:1240px; padding:0; gap:24px; margin-top:20px; }
+    #spotify-player,#unclicked-presaves { min-width:0; border:1px solid #304451; padding:26px; border-radius:12px; }
+    #unclicked-presaves { flex:1.25; height:460px; }
+    #unclicked-presaves h3,#spotify-player h3 { font-size:18px; color:#dcebf5!important; }
+    #unclicked-list > a { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 0; border-bottom:1px solid #28333e; color:#e7f2fa; text-decoration:none; font-size:14px; }
+    #unclicked-list > a::after { content:'PRESAVE ↗'; color:#9fc9e5; font-size:10px; letter-spacing:1px; white-space:nowrap; }
+    #welcome-info { max-width:1240px; border:0; border-top:1px solid #293d4b; border-bottom:1px solid #293d4b; border-radius:0; background:transparent; box-shadow:none; padding:38px 20px; font-size:15px; }
+    #welcome-info h2 { font-size:26px; }
+    #welcome-info p { color:#9caebb; }
+    #user-info { font-size:12px; margin:0; padding:8px; color:#9fc4db; }
+    #user-info:empty { display:none; }
+    #detail { margin-top:28px; border:1px solid #47647a; }
+    .artist-header { background:radial-gradient(ellipse at right,#486e8833,transparent); }
+    #admin { background:linear-gradient(120deg,#233e5144,#111b25); border:1px solid #7baccd; }
+    .auth-container { max-width:1000px; }
+    #login,#change-password,#register-form { min-width:0; border-width:1px; }
+    input { background:#080e15; border:1px solid #334753; font-size:14px; }
+    .account-shell { display:none; max-width:1000px; margin:30px auto; padding:0 16px; }
+    .account-shell.is-open { display:block; }
+    #register-form button { margin-left:0; margin-right:0; }
+    #new-title,#new-url { display:block; }
+    .account-shell .auth-container { padding:0; }
+    .distro-section { max-width:1240px; margin:50px auto; padding:30px; border-width:1px; display:grid; grid-template-columns:1fr 280px; gap:10px 30px; text-align:left; }
+    .distro-section h3 { font-size:22px; }
+    .distro-section p { font-size:13px; color:#9cafbd; margin:0; }
+    .distro-button { grid-column:2; grid-row:1 / 3; align-self:center; }
+    .site-footer { max-width:1240px; margin:40px auto 0; padding:25px 0; border-top:1px solid #263643; display:flex; justify-content:space-between; gap:15px; color:#738a9b; font-size:10px; letter-spacing:1.5px; }
+    @media(max-width:900px) { .hero,.section-heading,.top-row,.distro-section,.site-footer { margin-left:20px; margin-right:20px; } .hero-copy { padding-left:30px; } .hero h1 { font-size:60px; } .nav-links { gap:12px; } }
+    @media(max-width:600px) { .site-nav { padding:14px 16px; flex-wrap:wrap; } .wordmark { font-size:12px; } .nav-links { width:100%; justify-content:space-between; } .hero { grid-template-columns:1fr; min-height:0; } .hero-copy { padding:34px 24px 20px; } .hero h1 { font-size:56px; letter-spacing:-3px; } .hero-art { padding:0 45px 30px; } .hero-art img { max-width:260px; } .hero-note { margin-top:20px; } .section-heading { align-items:stretch; flex-direction:column; margin-top:36px; } .section-heading input { width:100%; } .grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; } .artist-card h3 { font-size:14px; padding-left:12px; } .artist-card .card-caption { padding:0 12px 15px; font-size:8px; } .top-row { flex-direction:column; } #unclicked-presaves { flex:auto; } .distro-section { display:block; } .distro-button { display:block; max-width:260px; margin-top:20px; } .site-footer { flex-direction:column; } .auth-container { flex-direction:column; } #register-form { padding:22px!important; } }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
   </style>
 </head>
 
 <body>
   <div class="bg-collage" id="bg-collage"></div>
 
-  <div style="text-align: center; padding: 40px 20px 20px;">
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="wordmark" href="#" onclick="goHome(); return false;">THE DIGITAL <span>OUTLAWS</span></a>
+    <div class="nav-links"><button onclick="navigateHome('directory')">Artists</button><button onclick="navigateHome('discovery')">Discover</button><button id="manage-button" style="display:none" onclick="manageArtist()">My artists</button><button onclick="openAccount()">Artist access ↗</button></div>
+  </nav>
+  <div class="brand-banner">
     <img 
       src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/siteArt/title2.png"
       alt="The Digital Outlaws"
@@ -480,16 +553,22 @@
   <div id="user-info"></div>
 
   <main id="home-view">
+  <section class="hero">
+    <div class="hero-copy"><div class="eyebrow">Independent spirit. Unfiltered sound.</div><h1>NO RULES.<br><span>JUST MUSIC.</span></h1><p>Meet the artists doing things their own way. Discover your next favourite. Be there before the release.</p><div class="hero-actions"><button onclick="navigateHome('directory')">Meet the outlaws ↗</button><button class="secondary" onclick="navigateHome('discovery')">Discover releases</button></div><div class="hero-note">COUNTRY ROOTS / OUTLAW ATTITUDE / DIGITAL FRONTIER</div></div>
+    <div class="hero-art"><img src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/siteArt/title2.png" alt="The Digital Outlaws emblem"></div>
+  </section>
+  <div class="section-heading" id="directory"><div><div class="eyebrow">The collective</div><h2>Meet the outlaws<span style="color:#759ab4">.</span></h2></div><input id="artist-search" aria-label="Search artists" placeholder="Search the lineup…" oninput="filterArtists()"></div>
   <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
 
+  <div class="section-heading" id="discovery"><div><div class="eyebrow">Your next obsession</div><h2>Discover something new.</h2></div></div>
   <div class="top-row">
     <div id="spotify-player">
-      <h3 style="color:var(--primary); margin:0 0 15px;">Now Playing (random artist)</h3>
+      <h3 style="color:var(--primary); margin:0 0 15px;">On the radar <span style="font-size:10px;color:#8aabba"> / ARTIST SPOTLIGHT</span></h3>
       <iframe id="spotify-iframe" style="border-radius:12px;" width="100%" height="380" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
     <div id="unclicked-presaves">
-      <h3>Unclicked Presaves</h3>
+      <h3>Get ahead of the release ↗</h3><p style="color:#91a8b9;font-size:12px">Presave links you haven't explored on this browser.</p>
       <div id="unclicked-list"></div>
     </div>
   </div>
@@ -499,8 +578,12 @@
     <p>This is your hub for presaving the latest tracks and albums from independent country & outlaw artists.</p>
   </div>
 
+  <div class="account-shell" id="account-panel">
+  <button class="back-button" onclick="closeAccount()">← Back to the music</button>
+  <div class="eyebrow">Backstage access</div><h2>Your music. Your control.</h2>
   <div class="auth-container">
     <div id="login">
+      <h3>Artist login</h3>
       <input type="email" id="email" placeholder="Email" />
       <input type="password" id="password" placeholder="Password" />
       <button onclick="login()">Login</button>
@@ -529,6 +612,7 @@
     <p id="register-message" style="margin-top:20px; text-align:center; font-weight:bold;"></p>
   </div>
 
+  </div><!-- account panel -->
   <div class="distro-section">
     <h3>Distribute Your Music Worldwide</h3>
     <p>Use DistroKid to get your music on Spotify, Apple Music, TikTok, YouTube & more.<br>Get <strong>7% off your first year</strong> and help support The Digital Outlaws - we earn a small commission when you sign up through this link (at no extra cost to you).</p>
@@ -553,8 +637,8 @@
     <div id="admin">
       <h3>＋ ADD NEW PRESAVE</h3>
       <p>Add a new single or album to your artist page.</p>
-      <input id="new-title" placeholder="Release title" />
-      <input id="new-url" placeholder="Presave URL" />
+      <label for="new-title">Release title</label><input id="new-title" placeholder="Your next single or album" />
+      <label for="new-url">Presave link</label><input id="new-url" type="url" placeholder="https://…" />
       <button onclick="addPresave()">Add Presave</button>
     </div>
 
@@ -562,6 +646,7 @@
     <ul id="presaves"></ul>
   </div>
 
+  <footer class="site-footer"><span>THE DIGITAL OUTLAWS / INDEPENDENT BY DESIGN</span><span>DISCOVER. PRESAVE. SUPPORT THE SOUND.</span></footer>
   <script>
     const sb = supabase.createClient(
       'https://zjtytzhrxgvahwtgpzgc.supabase.co',
@@ -569,6 +654,39 @@
     );
 
     let currentArtist = null;
+    let artistCatalog = [];
+    let detailRequest = 0;
+    const accountPanel = document.getElementById('account-panel');
+    document.getElementById('home-view').after(accountPanel);
+    function navigateHome(id) { goHome(); document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+    function openAccount() {
+      detailRequest++;
+      currentArtist = null;
+      document.getElementById('home-view').style.display = 'none';
+      document.getElementById('detail').style.display = 'none';
+      accountPanel.classList.add('is-open');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function closeAccount() { goHome(); }
+    function filterArtists() {
+      const query = document.getElementById('artist-search').value.toLowerCase().trim();
+      document.querySelectorAll('.artist-card').forEach(card => { card.style.display = card.textContent.toLowerCase().includes(query) ? '' : 'none'; });
+      let empty = document.getElementById('search-empty');
+      if (!empty) { empty = document.createElement('p'); empty.id='search-empty'; empty.textContent='No artists match that search.'; document.getElementById('artists-grid').appendChild(empty); }
+      empty.style.display = artistCatalog.length && !Array.from(document.querySelectorAll('.artist-card')).some(card=>card.style.display!=='none') ? 'block':'none';
+    }
+    async function manageArtist() {
+      const {data:{user}} = await sb.auth.getUser();
+      const owned = artistCatalog.filter(a=>user && a.owner===user.id);
+      if (owned.length===1) return showArtist(owned[0]);
+      navigateHome('directory');
+      document.getElementById('artist-search').value='';
+      filterArtists();
+      document.querySelectorAll('.artist-card').forEach(card=>{ card.style.display=owned.some(a=>String(a.id)===card.dataset.artistId)?'':'none'; });
+    }
+    function safeURL(value) { try { const u=new URL(value); return ['https:','http:'].includes(u.protocol)?u.href:''; } catch { return ''; } }
+    function visited(url) { try { return localStorage.getItem(url)==='clicked'; } catch { return false; } }
+    function markVisited(url) { try { localStorage.setItem(url,'clicked'); } catch {} }
 
     // ================== BACKGROUND COLLAGE ==================
     async function initBackground() {
@@ -612,21 +730,24 @@
       const container = document.getElementById('unclicked-list');
       container.innerHTML = '<p style="color:#aaa;">Loading...</p>';
       try {
-        const { data: presaves } = await sb.from('presaves').select('id, title, url, artist_id');
-        const unclicked = presaves.filter(p => localStorage.getItem(p.url) !== 'clicked');
+        const { data: presaves, error } = await sb.from('presaves').select('id, title, url, artist_id');
+        if (error) throw error;
+        const unclicked = (presaves || []).filter(p => !visited(p.url));
         container.innerHTML = '';
         if (unclicked.length === 0) {
           container.innerHTML = '<p style="color:#aaa; text-align:center;">No new presaves to check right now!</p>';
           return;
         }
         unclicked.forEach(p => {
-          const div = document.createElement('div');
-          div.innerHTML = `<strong>${p.title}</strong>`;
+          const div = document.createElement('a');
+          div.textContent = p.title;
+          div.href = safeURL(p.url);
+          div.target = '_blank';
+          div.rel = 'noopener noreferrer';
           div.style.cursor = 'pointer';
           div.onclick = () => {
-            window.open(p.url, '_blank');
-            localStorage.setItem(p.url, 'clicked');
-            loadUnclickedPresaves();
+            markVisited(p.url);
+            setTimeout(loadUnclickedPresaves, 100);
           };
           container.appendChild(div);
         });
@@ -650,6 +771,7 @@
 
       // Random shuffle (different every page load)
       artists.sort(() => Math.random() - 0.5);
+      artistCatalog = artists;
 
       const grid = document.getElementById('artists-grid');
       grid.innerHTML = artists.length === 0
@@ -657,22 +779,35 @@
         : '';
 
       artists.forEach(artist => {
-        const card = document.createElement('div');
+        const card = document.createElement('button');
+        card.type = 'button';
         card.className = 'artist-card';
-        card.innerHTML = `
-          <img src="${artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name)}" alt="${artist.name}">
-          <h3>${artist.name}</h3>
-        `;
+        card.dataset.artistId = artist.id;
+        const portrait = document.createElement('img');
+        portrait.src = safeURL(artist.portrait_url) || 'https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/siteArt/title2.png';
+        portrait.alt = artist.name;
+        portrait.loading = 'lazy';
+        const name = document.createElement('h3'); name.textContent = artist.name;
+        const caption = document.createElement('span'); caption.className='card-caption'; caption.textContent='View artist  ↗';
+        card.append(portrait,name,caption);
         card.onclick = () => showArtist(artist);
         grid.appendChild(card);
       });
 
       document.getElementById('loading').style.display = 'none';
       grid.style.display = 'grid';
-      document.getElementById('detail').style.display = 'none';
+      filterArtists();
     }
 
     async function showArtist(artist) {
+      const request = ++detailRequest;
+      accountPanel.classList.remove('is-open');
+      document.getElementById('admin').style.display='none';
+      document.getElementById('presaves').textContent='Loading presaves…';
+      if (!currentArtist || currentArtist.id!==artist.id) {
+        document.getElementById('new-title').value='';
+        document.getElementById('new-url').value='';
+      }
       currentArtist = artist;
 
       document.getElementById('home-view').style.display = 'none';
@@ -685,7 +820,7 @@
       if (artist.spotify_url) {
         const spotifyButton = document.createElement('a');
         spotifyButton.className = 'spotify-button';
-        spotifyButton.href = artist.spotify_url;
+        spotifyButton.href = safeURL(artist.spotify_url);
         spotifyButton.target = '_blank';
         spotifyButton.rel = 'noopener noreferrer';
         spotifyButton.textContent = 'Listen on Spotify ↗';
@@ -695,6 +830,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       const { data: { user } } = await sb.auth.getUser();
+      if (request !== detailRequest) return;
       const isOwner = user && user.id === artist.owner;
       const admin = document.getElementById('admin');
       admin.style.display = isOwner ? 'block' : 'none';
@@ -705,6 +841,7 @@
         .eq('artist_id', artist.id);
 
       const list = document.getElementById('presaves');
+      if (request !== detailRequest) return;
       list.innerHTML = '';
 
       if (error) {
@@ -731,12 +868,12 @@
 
         const a = document.createElement('a');
         a.className = 'presave-link';
-        a.href = p.url;
+        a.href = safeURL(p.url);
         a.textContent = p.title;
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
 
-        const isClicked = localStorage.getItem(p.url) === 'clicked';
+        const isClicked = visited(p.url);
         if (isClicked) {
           a.classList.add('clicked');
           const check = document.createElement('span');
@@ -747,7 +884,10 @@
 
         a.onclick = () => {
           if (!isClicked) {
-            localStorage.setItem(p.url, 'clicked');
+            markVisited(p.url);
+            a.classList.add('clicked');
+            a.textContent = '✓ ' + p.title;
+            a.title = 'Link visited, presave completion not verified';
           }
         };
 
@@ -782,25 +922,26 @@
       const title = document.getElementById('new-title').value.trim();
       const url = document.getElementById('new-url').value.trim();
       if (!title || !url) return alert('Fill both fields');
+      if (!safeURL(url)) return alert('Please enter a full https:// or http:// presave URL.');
+      if (!currentArtist) return;
+      const artist = currentArtist;
 
       const { data: { user } } = await sb.auth.getUser();
-      if (!user || user.id !== currentArtist.owner) {
+      if (!user || user.id !== artist.owner) {
         return alert("You must be the owner to add presaves.");
       }
 
-      const { error } = await sb.from('presaves').insert({ artist_id: currentArtist.id, title, url });
+      const { error } = await sb.from('presaves').insert({ artist_id: artist.id, title, url });
       if (error) alert('Error: ' + error.message);
       else {
         document.getElementById('new-title').value = '';
         document.getElementById('new-url').value = '';
-        showArtist(currentArtist);
+        if (currentArtist && currentArtist.id===artist.id) showArtist(artist);
       }
     }
 
     function back() {
-      document.getElementById('detail').style.display = 'none';
-      document.getElementById('home-view').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      goHome();
     }
 
     async function login() {
@@ -821,7 +962,8 @@
       document.getElementById('user-info').textContent = user ? 'Logged in as ' + user.email + ' (edit your presaves)' : '';
       document.getElementById('change-password').style.display = user ? 'block' : 'none';
       document.getElementById('logout-btn').style.display = user ? 'inline-block' : 'none';
-      loadArtists();
+      await loadArtists();
+      document.getElementById('manage-button').style.display = user && artistCatalog.some(a=>a.owner===user.id) ? 'inline-block':'none';
       loadUnclickedPresaves();
     }
 
@@ -854,8 +996,13 @@
     }
 
     function goHome() {
+      detailRequest++;
+      currentArtist=null;
+      accountPanel.classList.remove('is-open');
       document.getElementById('detail').style.display = 'none';
       document.getElementById('home-view').style.display = 'block';
+      filterArtists();
+      loadUnclickedPresaves();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
