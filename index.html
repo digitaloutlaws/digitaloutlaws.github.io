@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,6 +149,7 @@
 
     input {
       width: 100%;
+      box-sizing: border-box;
       padding: 14px;
       margin: 10px 0;
       background: #111;
@@ -232,9 +232,9 @@
     }
 
     #detail {
-      max-width: 700px;
+      max-width: 900px;
       margin: 40px auto;
-      padding: 30px;
+      padding: 35px;
       background: var(--card);
       border-radius: 16px;
       box-shadow: 0 10px 40px var(--shadow);
@@ -243,6 +243,149 @@
     }
 
     #detail h2 { color: var(--primary); }
+
+    .back-button {
+      margin: 0 0 30px;
+      background: #222;
+      color: var(--text);
+      border: 1px solid var(--primary-dark);
+    }
+
+    .artist-header {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--primary-dark);
+    }
+
+    #artist-portrait {
+      width: 180px;
+      height: 180px;
+      flex: 0 0 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid var(--primary);
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+
+    .artist-header-copy {
+      min-width: 0;
+    }
+
+    #artist-name {
+      margin: 0 0 15px;
+      font-size: 2.3rem;
+    }
+
+    .spotify-button {
+      display: inline-block;
+      padding: 13px 22px;
+      background: #1DB954;
+      color: #000;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .spotify-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px var(--shadow);
+    }
+
+    #admin {
+      display: none;
+      margin: 0 0 35px;
+      padding: 25px;
+      background: rgba(95,125,149,0.12);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(95,125,149,0.18);
+    }
+
+    #admin h3 {
+      margin: 0 0 5px;
+      color: var(--primary-glow);
+      font-size: 1.45rem;
+    }
+
+    #admin p {
+      margin: 0 0 12px;
+      color: #bbb;
+    }
+
+    #admin button {
+      margin: 12px 0 0;
+      width: 100%;
+      background: var(--primary);
+      color: #000;
+      font-size: 1.05rem;
+    }
+
+    #presaves-heading {
+      margin: 0 0 15px;
+      color: var(--text);
+    }
+
+    #presaves {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .presave-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 14px 16px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+    }
+
+    .presave-link {
+      color: var(--text);
+      font-weight: bold;
+      line-height: 1.4;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .presave-link:hover {
+      color: var(--primary-glow);
+    }
+
+    .presave-link.clicked {
+      opacity: 0.72;
+    }
+
+    .clicked-check {
+      color: var(--green-check);
+      margin-right: 8px;
+      font-size: 1.2em;
+    }
+
+    .delete-presave {
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 9px 14px;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .empty-presaves {
+      padding: 20px;
+      color: #aaa;
+      text-align: center;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+    }
 
     .distro-section {
       max-width: 800px;
@@ -283,6 +426,41 @@
       border-radius: 12px;
       border: 1px solid var(--primary-dark);
     }
+
+    @media (max-width: 650px) {
+      #detail {
+        margin: 20px 12px;
+        padding: 22px 18px;
+      }
+
+      .artist-header {
+        align-items: flex-start;
+        gap: 18px;
+      }
+
+      #artist-portrait {
+        width: 105px;
+        height: 105px;
+        flex-basis: 105px;
+      }
+
+      #artist-name {
+        font-size: 1.65rem;
+      }
+
+      .spotify-button {
+        padding: 11px 14px;
+      }
+
+      .presave-item {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .delete-presave {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 
@@ -300,6 +478,8 @@
   </div>
 
   <div id="user-info"></div>
+
+  <main id="home-view">
   <div id="loading">Loading artists...</div>
   <div class="grid" id="artists-grid" style="display:none;"></div>
 
@@ -351,26 +531,35 @@
 
   <div class="distro-section">
     <h3>Distribute Your Music Worldwide</h3>
-    <p>Use DistroKid to get your music on Spotify, Apple Music, TikTok, YouTube & more.<br>Get <strong>7% off your first year</strong> and help support The Digital Outlaws — we earn a small commission when you sign up through this link (at no extra cost to you).</p>
+    <p>Use DistroKid to get your music on Spotify, Apple Music, TikTok, YouTube & more.<br>Get <strong>7% off your first year</strong> and help support The Digital Outlaws - we earn a small commission when you sign up through this link (at no extra cost to you).</p>
     <a href="https://distrokid.com/vip/seven/10480046" target="_blank" rel="noopener noreferrer" class="distro-button">
       <img src="https://zjtytzhrxgvahwtgpzgc.supabase.co/storage/v1/object/public/portraits/distro.jpg"
            alt="Sign up for DistroKid - 7% off your first year">
     </a>
   </div>
+  </main>
 
   <div id="detail">
-    <button onclick="back()">← Back to artists</button>
-    <h2 id="artist-name"></h2>
-    <img id="artist-portrait" style="width:200px; height:200px; object-fit:cover; border-radius:50%;" />
-    <div id="spotify-link"></div>
-    <h3>Presaves</h3>
-    <ul id="presaves"></ul>
+    <button class="back-button" onclick="back()">← Back to artists</button>
+
+    <div class="artist-header">
+      <img id="artist-portrait" alt="Artist portrait" />
+      <div class="artist-header-copy">
+        <h2 id="artist-name"></h2>
+        <div id="spotify-link"></div>
+      </div>
+    </div>
+
     <div id="admin">
-      <h3>Edit Presaves (your artist only)</h3>
-      <input id="new-title" placeholder="Title (e.g. New Single)" />
+      <h3>＋ ADD NEW PRESAVE</h3>
+      <p>Add a new single or album to your artist page.</p>
+      <input id="new-title" placeholder="Release title" />
       <input id="new-url" placeholder="Presave URL" />
       <button onclick="addPresave()">Add Presave</button>
     </div>
+
+    <h3 id="presaves-heading">Presaves</h3>
+    <ul id="presaves"></ul>
   </div>
 
   <script>
@@ -485,69 +674,108 @@
 
     async function showArtist(artist) {
       currentArtist = artist;
+
+      document.getElementById('home-view').style.display = 'none';
       document.getElementById('detail').style.display = 'block';
-      document.getElementById('artists-grid').style.display = 'none';
       document.getElementById('artist-name').textContent = artist.name;
       document.getElementById('artist-portrait').src = artist.portrait_url || 'https://via.placeholder.com/200?text=' + encodeURIComponent(artist.name);
-      document.getElementById('spotify-link').innerHTML = artist.spotify_url
-        ? `<a href="${artist.spotify_url}" target="_blank"><button style="margin:20px; padding:15px; font-size:1.2em;">Listen on Spotify ↗</button></a>`
-        : '';
 
-      const { data: presaves } = await sb.from('presaves').select('*').eq('artist_id', artist.id);
+      const spotifyLink = document.getElementById('spotify-link');
+      spotifyLink.innerHTML = '';
+      if (artist.spotify_url) {
+        const spotifyButton = document.createElement('a');
+        spotifyButton.className = 'spotify-button';
+        spotifyButton.href = artist.spotify_url;
+        spotifyButton.target = '_blank';
+        spotifyButton.rel = 'noopener noreferrer';
+        spotifyButton.textContent = 'Listen on Spotify ↗';
+        spotifyLink.appendChild(spotifyButton);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const { data: { user } } = await sb.auth.getUser();
+      const isOwner = user && user.id === artist.owner;
+      const admin = document.getElementById('admin');
+      admin.style.display = isOwner ? 'block' : 'none';
+
+      const { data: presaves, error } = await sb
+        .from('presaves')
+        .select('*')
+        .eq('artist_id', artist.id);
+
       const list = document.getElementById('presaves');
-      list.innerHTML = presaves.length === 0 ? '<li>No presaves yet.</li>' : '';
+      list.innerHTML = '';
+
+      if (error) {
+        const errorItem = document.createElement('li');
+        errorItem.className = 'empty-presaves';
+        errorItem.textContent = 'Unable to load presaves right now.';
+        list.appendChild(errorItem);
+        return;
+      }
+
+      if (!presaves || presaves.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'empty-presaves';
+        emptyItem.textContent = isOwner
+          ? 'No presaves yet. Add your first one above.'
+          : 'No presaves yet.';
+        list.appendChild(emptyItem);
+        return;
+      }
 
       presaves.forEach(p => {
         const li = document.createElement('li');
+        li.className = 'presave-item';
+
         const a = document.createElement('a');
+        a.className = 'presave-link';
         a.href = p.url;
         a.textContent = p.title;
         a.target = '_blank';
+        a.rel = 'noopener noreferrer';
 
         const isClicked = localStorage.getItem(p.url) === 'clicked';
         if (isClicked) {
-          a.style.opacity = '0.7';
-          a.style.background = '#444';
-          a.style.borderRadius = '6px';
-          a.style.padding = '8px 12px';
+          a.classList.add('clicked');
           const check = document.createElement('span');
           check.textContent = '✓ ';
-          check.style.color = '#1DB954';
-          check.style.fontWeight = 'bold';
-          check.style.marginRight = '8px';
-          check.style.fontSize = '1.3em';
+          check.className = 'clicked-check';
           a.prepend(check);
         }
 
         a.onclick = () => {
           if (!isClicked) {
             localStorage.setItem(p.url, 'clicked');
-            showArtist(artist);
           }
         };
 
         li.appendChild(a);
 
-        sb.auth.getUser().then(({ data: { user } }) => {
-          if (user && user.id === artist.owner) {
-            const delBtn = document.createElement('button');
-            delBtn.textContent = 'Delete';
-            delBtn.onclick = async () => {
-              if (confirm('Delete this presave?')) {
-                await sb.from('presaves').delete().eq('id', p.id);
+        if (isOwner) {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-presave';
+          delBtn.textContent = 'Delete';
+          delBtn.onclick = async () => {
+            if (confirm('Delete this presave?')) {
+              const { error: deleteError } = await sb
+                .from('presaves')
+                .delete()
+                .eq('id', p.id);
+
+              if (deleteError) {
+                alert('Error: ' + deleteError.message);
+              } else {
                 showArtist(artist);
               }
-            };
-            li.appendChild(delBtn);
-          }
-        });
+            }
+          };
+          li.appendChild(delBtn);
+        }
 
         list.appendChild(li);
       });
-
-      const admin = document.getElementById('admin');
-      const { data: { user } } = await sb.auth.getUser();
-      admin.style.display = (user && user.id === artist.owner) ? 'block' : 'none';
     }
 
     async function addPresave() {
@@ -571,7 +799,8 @@
 
     function back() {
       document.getElementById('detail').style.display = 'none';
-      document.getElementById('artists-grid').style.display = 'grid';
+      document.getElementById('home-view').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function login() {
@@ -614,7 +843,7 @@
       if (error) {
         msg.textContent = 'Error: ' + error.message;
       } else {
-        msg.textContent = 'Password updated successfully! Logging out — please log in again with the new password.';
+        msg.textContent = 'Password updated successfully! Logging out - please log in again with the new password.';
         msg.style.color = 'var(--primary)';
         await sb.auth.signOut();
         updateUserInfo();
@@ -626,7 +855,7 @@
 
     function goHome() {
       document.getElementById('detail').style.display = 'none';
-      document.getElementById('artists-grid').style.display = 'grid';
+      document.getElementById('home-view').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -689,4 +918,3 @@
   </script>
 </body>
 </html>
-```
