@@ -996,6 +996,11 @@
     }
 
     function goHome() {
+      const homeURL = new URL(window.location.href);
+      if (homeURL.searchParams.has('artist')) {
+        homeURL.searchParams.delete('artist');
+        history.replaceState(null, '', homeURL);
+      }
       detailRequest++;
       currentArtist=null;
       accountPanel.classList.remove('is-open');
@@ -1058,10 +1063,20 @@
       }
     }
 
+    // Open a profile directly, e.g. ?artist=dakota-rayne.
+    function openLinkedArtist() {
+      const requested = new URLSearchParams(window.location.search).get('artist');
+      if (!requested) return;
+      const slug = value => String(value || '').trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const artist = artistCatalog.find(a => String(a.id) === requested || slug(a.name) === slug(requested));
+      if (artist) showArtist(artist);
+    }
+
     // Start everything
     initBackground();
     loadRandomSpotifyPlayer();
-    updateUserInfo();
+    updateUserInfo().then(openLinkedArtist);
   </script>
 </body>
 </html>
